@@ -9,6 +9,8 @@ import java.util.List;
 
 @Service
 public class ImagePostService {
+    @Autowired
+    private PostService postService;
 
     @Autowired
     private ImagePostRepository imagePostRepository;
@@ -22,22 +24,22 @@ public class ImagePostService {
     }
 
     public ImagePost createImagePost(ImagePost imagePost) {
-        return imagePostRepository.save(imagePost);
+        return (ImagePost) postService.createPost(imagePost);
     }
 
     public ImagePost updateImagePost(Long imagePostId, ImagePost updatedImagePost) {
         if (imagePostRepository.existsById(imagePostId)) {
             updatedImagePost.setPostId(imagePostId);
-            return imagePostRepository.save(updatedImagePost);
+            ImagePost savedImagePost = imagePostRepository.save(updatedImagePost);
+            // Update the post in the main post table and return the updated object
+            return (ImagePost) postService.updatePost(imagePostId, savedImagePost);
         }
         return null; // ImagePost not found
     }
 
     public boolean deleteImagePost(Long imagePostId) {
-        if (imagePostRepository.existsById(imagePostId)) {
-            imagePostRepository.deleteById(imagePostId);
-            return true;
-        }
-        return false; // ImagePost not found
+        // Call the common deletePost method from PostService
+        return postService.deletePost(imagePostId);
     }
+
 }

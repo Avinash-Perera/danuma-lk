@@ -1,0 +1,36 @@
+### Get all users
+GET http://localhost:8080/api/posts
+
+###For posts requests IMAGE
+POST http://localhost:8080/api/posts/image
+Content-Type: application/json
+
+{
+  "title": "My image Post",
+  "description": "This is a image post description.",
+  "postType": "IMAGE",
+  "imageUrl": "This is the content of the image post."
+}
+
+
+###For posts requests VIDEO
+POST http://localhost:8080/api/posts/video
+Content-Type: application/json
+
+{
+  "title": "My video Post",
+  "description": "This is a video post description.",
+  "postType": "VIDEO",
+  "videoUrl": "This is the content of the video post."
+}
+
+###For posts requests TEXT
+POST http://localhost:8080/api/posts/text
+Content-Type: application/json
+
+{
+  "title": "My Text Post",
+  "description": "This is a text post description.",
+  "postType": "TEXT",
+  "content": "This is the content of the text post."
+}
