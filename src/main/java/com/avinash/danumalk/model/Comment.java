@@ -1,17 +1,14 @@
 package com.avinash.danumalk.model;
 
-import java.sql.Date;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.sql.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "comment")
@@ -19,15 +16,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class Comment {
-    
-     @Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
     private Long commentId;
 
     @ManyToOne
+    @JsonIgnoreProperties("comments") // Use this annotation
     @JoinColumn(name = "post_id", referencedColumnName = "post_id")
     private Post post;
+
+    @ManyToOne
+    @JsonIgnoreProperties("replies") // Use this annotation
+    @JoinColumn(name = "parent_comment_id", referencedColumnName = "comment_id")
+    private Comment parentComment;
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE)
+    private List<Comment> replies;
 
     @Column(name = "content", length = 1000)
     private String content;

@@ -81,11 +81,29 @@ public class PostController {
                 throw new IllegalArgumentException("Cannot change the post type for TextPost.");
             }
 
-            updatedTextPost.setPostId(textPostId);
-            return textPostService.updateTextPost(textPostId, updatedTextPost);
+            // Clear the existing comments from the database (using orphanRemoval)
+            existingTextPost.getComments().clear();
+
+            // Update other properties of the existingTextPost as needed
+            existingTextPost.setTitle(updatedTextPost.getTitle());
+            existingTextPost.setDescription(updatedTextPost.getDescription());
+            existingTextPost.setContent(updatedTextPost.getContent());
+
+            // Add the updated comments to the existingTextPost
+            List<Comment> updatedComments = updatedTextPost.getComments();
+            if (updatedComments != null) {
+                for (Comment comment : updatedComments) {
+                    comment.setPost(existingTextPost); // Set the parent post
+                    existingTextPost.getComments().add(comment); // Add the comment
+                }
+            }
+
+            // Save the updated TextPost entity
+            return textPostService.updateTextPost(textPostId, existingTextPost);
         }
         return null; // TextPost not found
     }
+
 
     // Update ImagePost by ID
     @PutMapping("/image/{imagePostId}")

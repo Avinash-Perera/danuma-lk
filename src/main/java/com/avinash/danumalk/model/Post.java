@@ -1,14 +1,15 @@
 package com.avinash.danumalk.model;
 
-import java.sql.Date;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.sql.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -40,5 +41,11 @@ public class Post {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
+
+    // Define a one-to-many relationship with comments
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("post") // Use this annotation
+    private List<Comment> comments;
+
     
 }
