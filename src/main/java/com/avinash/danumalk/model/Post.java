@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,7 +19,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
-    
+    public Post(Long postId) {
+        this.postId = postId;
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
@@ -47,5 +50,10 @@ public class Post {
     @JsonIgnoreProperties("post") // Use this annotation
     private List<Comment> comments;
 
-    
+    // Define a one-to-many relationship with reactions
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("post")
+    private List<Reaction> reactions;
+
+
 }
