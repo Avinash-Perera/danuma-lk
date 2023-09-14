@@ -12,8 +12,6 @@ import java.util.List;
 
 @Service
 public class TextPostService {
-    @Autowired
-    private PostService postService;
 
     @Autowired
     private TextPostRepository textPostRepository;

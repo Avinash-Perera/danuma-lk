@@ -1,6 +1,6 @@
 package com.avinash.danumalk.controller;
 
-import com.avinash.danumalk.model.Post;
+import com.avinash.danumalk.dto.PostDTO;
 import com.avinash.danumalk.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,34 +16,19 @@ public class PostController {
     private PostService postService;
 
     @GetMapping
-    public List<Post> getAllPosts() {
+    public List<PostDTO> getAllPosts() {
         return postService.getAllPosts();
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<Post> getPostById(@PathVariable Long postId) {
-        Post post = postService.getPostById(postId);
+    public ResponseEntity<PostDTO> getPostById(@PathVariable Long postId) {
+        PostDTO postDTO = postService.getPostById(postId);
 
-        if (post != null) {
-            return ResponseEntity.ok(post);
+        if (postDTO != null) {
+            return ResponseEntity.ok(postDTO);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

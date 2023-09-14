@@ -19,6 +19,7 @@ public class PostDTO {
     private PostType postType;
     private Date createdAt;
     private Date updatedAt;
-    private List<Comment> comments;
-    private List<Reaction> reactions;
+
+
+
 }

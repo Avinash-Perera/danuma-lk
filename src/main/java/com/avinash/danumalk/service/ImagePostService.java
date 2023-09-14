@@ -1,45 +1,58 @@
 package com.avinash.danumalk.service;
 
+import com.avinash.danumalk.dto.ImagePostDTO;
+import com.avinash.danumalk.dto.ImagePostMapper;
 import com.avinash.danumalk.model.ImagePost;
 import com.avinash.danumalk.repository.ImagePostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
 public class ImagePostService {
-    @Autowired
-    private PostService postService;
 
     @Autowired
     private ImagePostRepository imagePostRepository;
 
-    public List<ImagePost> getAllImagePosts() {
-        return imagePostRepository.findAll();
+    @Autowired
+    private ImagePostMapper imagePostMapper; // Add the ImagePostMapper
+
+    public List<ImagePostDTO> getAllImagePosts() {
+        List<ImagePost> imagePosts = imagePostRepository.findAll();
+        return Collections.singletonList(imagePostMapper.imagePostToDTO((ImagePost) imagePosts)); // Use the mapper to convert to DTOs
     }
 
-    public ImagePost getImagePostById(Long imagePostId) {
-        return imagePostRepository.findById(imagePostId).orElse(null);
+    public ImagePostDTO getImagePostById(Long imagePostId) {
+        ImagePost imagePost = imagePostRepository.findById(imagePostId).orElse(null);
+        if (imagePost != null) {
+            return imagePostMapper.imagePostToDTO(imagePost); // Use the mapper to convert to DTO
+        }
+        return null;
     }
 
-    public ImagePost createImagePost(ImagePost imagePost) {
-        return (ImagePost) postService.createPost(imagePost);
+    public ImagePostDTO createImagePost(ImagePostDTO imagePostDTO) {
+        ImagePost imagePost = imagePostMapper.dtoToImagePost(imagePostDTO); // Use the mapper to convert to an entity
+        ImagePost savedImagePost = imagePostRepository.save(imagePost);
+        return imagePostMapper.imagePostToDTO(savedImagePost); // Use the mapper to convert back to DTO
     }
 
-    public ImagePost updateImagePost(Long imagePostId, ImagePost updatedImagePost) {
+    public ImagePostDTO updateImagePost(Long imagePostId, ImagePostDTO updatedImagePostDTO) {
         if (imagePostRepository.existsById(imagePostId)) {
-            updatedImagePost.setPostId(imagePostId);
-            ImagePost savedImagePost = imagePostRepository.save(updatedImagePost);
-            // Update the post in the main post table and return the updated object
-            return (ImagePost) postService.updatePost(imagePostId, savedImagePost);
+            ImagePost imagePost = imagePostMapper.dtoToImagePost(updatedImagePostDTO); // Use the mapper to convert to an entity
+            imagePost.setPostId(imagePostId);
+            ImagePost savedImagePost = imagePostRepository.save(imagePost);
+            return imagePostMapper.imagePostToDTO(savedImagePost); // Use the mapper to convert back to DTO
         }
         return null; // ImagePost not found
     }
 
     public boolean deleteImagePost(Long imagePostId) {
-        // Call the common deletePost method from PostService
-        return postService.deletePost(imagePostId);
+        if (imagePostRepository.existsById(imagePostId)) {
+            imagePostRepository.deleteById(imagePostId);
+            return true;
+        }
+        return false; // ImagePost not found
     }
-
 }

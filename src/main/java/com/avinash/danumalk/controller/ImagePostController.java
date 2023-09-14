@@ -1,5 +1,6 @@
 package com.avinash.danumalk.controller;
 
+import com.avinash.danumalk.dto.ImagePostDTO;
 import com.avinash.danumalk.model.Comment;
 import com.avinash.danumalk.model.ImagePost;
 import com.avinash.danumalk.model.PostType;
@@ -17,48 +18,41 @@ public class ImagePostController {
     private ImagePostService imagePostService;
 
 
-//Create Image post
+    //Create Image post
     @PostMapping
-    public ImagePost createImagePost(@RequestBody ImagePost imagePost) {
-        if (imagePost.getPostType() != PostType.IMAGE) {
-            throw new IllegalArgumentException("Invalid post type for ImagePost.");
+    public ImagePostDTO createImagePost(@RequestBody ImagePostDTO imagePostDTO) {
+        if (imagePostDTO.getPostType() != PostType.IMAGE) {
+            throw new IllegalArgumentException("Invalid post type for TextPost.");
         }
-        return imagePostService.createImagePost(imagePost);
+        return imagePostService.createImagePost(imagePostDTO);
     }
+
 
     // Update ImagePost by ID
     @PutMapping("/{imagePostId}")
-    public ImagePost updateImagePost(@PathVariable Long imagePostId, @RequestBody ImagePost updatedImagePost) {
-        ImagePost existingImagePost = imagePostService.getImagePostById(imagePostId);
-        if (existingImagePost != null) {
+    public ImagePostDTO updateImagePost(@PathVariable Long imagePostId, @RequestBody ImagePostDTO updatedImagePostDTO) {
+        ImagePostDTO existingImagePostDTO = imagePostService.getImagePostById(imagePostId);
+        if (existingImagePostDTO != null) {
             // Check if the provided ID matches the post type
-            if (existingImagePost.getPostType() != PostType.IMAGE) {
+            if (existingImagePostDTO.getPostType() != PostType.IMAGE) {
                 throw new IllegalArgumentException("Invalid post type for ImagePost.");
             }
 
             // Check if the PostType in the updated post matches the existing PostType
-            if (updatedImagePost.getPostType() != PostType.IMAGE) {
+            if (updatedImagePostDTO.getPostType() != PostType.IMAGE) {
                 throw new IllegalArgumentException("Cannot change the post type for ImagePost.");
             }
-            // Clear the existing comments from the database (using orphanRemoval)
-            existingImagePost.getComments().clear();
 
-            updatedImagePost.setPostId(imagePostId);
 
-            // Update other properties of the existingTextPost as needed
-            existingImagePost.setTitle(updatedImagePost.getTitle());
-            existingImagePost.setImageDescription(updatedImagePost.getImageDescription());
 
-            // Add the updated comments to the existingTextPost
-            List<Comment> updatedComments = updatedImagePost.getComments();
-            if (updatedComments != null) {
-                for (Comment comment : updatedComments) {
-                    comment.setPost(existingImagePost); // Set the parent post
-                    existingImagePost.getComments().add(comment); // Add the comment
-                }
-            }
+            // Update other properties of the existingImagePostDTO as needed
+            existingImagePostDTO.setTitle(updatedImagePostDTO.getTitle());
+            existingImagePostDTO.setImageUrl(updatedImagePostDTO.getImageUrl());
+            existingImagePostDTO.setImageDescription(updatedImagePostDTO.getImageDescription());
 
-            return imagePostService.updateImagePost(imagePostId, updatedImagePost);
+
+
+            return imagePostService.updateImagePost(imagePostId, updatedImagePostDTO);
         }
         return null; // ImagePost not found
     }
@@ -66,10 +60,10 @@ public class ImagePostController {
     // Delete ImagePost by ID
     @DeleteMapping("/{imagePostId}")
     public boolean deleteImagePost(@PathVariable Long imagePostId) {
-        ImagePost existingImagePost = imagePostService.getImagePostById(imagePostId);
-        if (existingImagePost != null) {
+        ImagePostDTO existingImagePostDTO = imagePostService.getImagePostById(imagePostId);
+        if (existingImagePostDTO != null) {
             // Check if the provided ID matches the post type
-            if (existingImagePost.getPostType() != PostType.IMAGE) {
+            if (existingImagePostDTO.getPostType() != PostType.IMAGE) {
                 throw new IllegalArgumentException("Invalid post type for ImagePost.");
             }
             return imagePostService.deleteImagePost(imagePostId);

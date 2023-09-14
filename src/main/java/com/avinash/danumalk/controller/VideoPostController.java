@@ -1,5 +1,6 @@
 package com.avinash.danumalk.controller;
 
+import com.avinash.danumalk.dto.VideoPostDTO;
 import com.avinash.danumalk.model.Comment;
 import com.avinash.danumalk.model.PostType;
 import com.avinash.danumalk.model.VideoPost;
@@ -18,47 +19,37 @@ public class VideoPostController {
 
     //Create Video post
     @PostMapping
-    public VideoPost createVideoPost(@RequestBody VideoPost videoPost) {
-        if (videoPost.getPostType() != PostType.VIDEO) {
+    public VideoPostDTO createVideoPost(@RequestBody VideoPostDTO videoPostDTO) {
+        if (videoPostDTO.getPostType() != PostType.VIDEO) {
             throw new IllegalArgumentException("Invalid post type for VideoPost.");
         }
-        return videoPostService.createVideoPost(videoPost);
+        return videoPostService.createVideoPost(videoPostDTO);
     }
 
     // Update VideoPost by ID
     @PutMapping("/{videoPostId}")
-    public VideoPost updateVideoPost(@PathVariable Long videoPostId, @RequestBody VideoPost updatedVideoPost) {
-        VideoPost existingVideoPost = videoPostService.getVideoPostById(videoPostId);
-        if (existingVideoPost != null) {
+    public VideoPostDTO updateVideoPost(@PathVariable Long videoPostId, @RequestBody VideoPostDTO updatedVideoPostDTO) {
+        VideoPostDTO existingVideoPostDTO = videoPostService.getVideoPostById(videoPostId);
+        if (existingVideoPostDTO != null) {
             // Check if the provided ID matches the post type
-            if (existingVideoPost.getPostType() != PostType.VIDEO) {
+            if (existingVideoPostDTO.getPostType() != PostType.VIDEO) {
                 throw new IllegalArgumentException("Invalid post type for VideoPost.");
             }
 
             // Check if the PostType in the updated post matches the existing PostType
-            if (updatedVideoPost.getPostType() != PostType.VIDEO) {
+            if (updatedVideoPostDTO.getPostType() != PostType.VIDEO) {
                 throw new IllegalArgumentException("Cannot change the post type for VideoPost.");
             }
 
-            // Clear the existing comments from the database (using orphanRemoval)
-            existingVideoPost.getComments().clear();
 
-            updatedVideoPost.setPostId(videoPostId);
 
-            // Update other properties of the existingTextPost as needed
-            existingVideoPost.setTitle(updatedVideoPost.getTitle());
-            existingVideoPost.setVideoDescription(updatedVideoPost.getVideoDescription());
+            // Update other properties of the existingVideoPostDTO as needed
+            existingVideoPostDTO.setTitle(updatedVideoPostDTO.getTitle());
+            existingVideoPostDTO.setVideoUrl(updatedVideoPostDTO.getVideoUrl());
+            existingVideoPostDTO.setVideoDescription(updatedVideoPostDTO.getVideoDescription());
 
-            // Add the updated comments to the existingTextPost
-            List<Comment> updatedComments = updatedVideoPost.getComments();
-            if (updatedComments != null) {
-                for (Comment comment : updatedComments) {
-                    comment.setPost(existingVideoPost); // Set the parent post
-                    existingVideoPost.getComments().add(comment); // Add the comment
-                }
-            }
 
-            return videoPostService.updateVideoPost(videoPostId, updatedVideoPost);
+            return videoPostService.updateVideoPost(videoPostId, updatedVideoPostDTO);
         }
         return null; // VideoPost not found
     }
@@ -66,10 +57,10 @@ public class VideoPostController {
     // Delete VideoPost by ID
     @DeleteMapping("/{videoPostId}")
     public boolean deleteVideoPost(@PathVariable Long videoPostId) {
-        VideoPost existingVideoPost = videoPostService.getVideoPostById(videoPostId);
-        if (existingVideoPost != null) {
+        VideoPostDTO existingVideoPostDTO = videoPostService.getVideoPostById(videoPostId);
+        if (existingVideoPostDTO != null) {
             // Check if the provided ID matches the post type
-            if (existingVideoPost.getPostType() != PostType.VIDEO) {
+            if (existingVideoPostDTO.getPostType() != PostType.VIDEO) {
                 throw new IllegalArgumentException("Invalid post type for VideoPost.");
             }
             return videoPostService.deleteVideoPost(videoPostId);

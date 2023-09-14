@@ -20,7 +20,7 @@ public class TextPostController {
     private TextPostService textPostService;
 
     @PostMapping
-    public TextPostDTO createPost(@RequestBody TextPostDTO textPostDTO) {
+    public TextPostDTO createTextPost(@RequestBody TextPostDTO textPostDTO) {
         if (textPostDTO.getPostType() != PostType.TEXT) {
             throw new IllegalArgumentException("Invalid post type for TextPost.");
         }
@@ -41,6 +41,8 @@ public class TextPostController {
             if (updatedTextPostDTO.getPostType() != PostType.TEXT) {
                 throw new IllegalArgumentException("Cannot change the post type for TextPost.");
             }
+
+
 
             // Update other properties of the existingTextPostDTO as needed
             existingTextPostDTO.setTitle(updatedTextPostDTO.getTitle());
