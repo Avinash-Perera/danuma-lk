@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TextPost extends Post{
-    @Column(name = "content", length = 1000)
+    @Column(name = "content", length = 5000)
     private String content;
 }

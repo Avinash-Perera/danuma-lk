@@ -16,9 +16,10 @@ import java.sql.Date;
 @AllArgsConstructor
 public class ImagePost extends Post{
 
-
     @Column(name = "image_data")
     private String imageUrl;
 
+    @Column(name = "image_description", length = 1000) // Image description field
+    private String imageDescription;
 
 }

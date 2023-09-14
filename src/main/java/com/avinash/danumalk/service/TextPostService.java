@@ -1,11 +1,13 @@
 package com.avinash.danumalk.service;
 
-import com.avinash.danumalk.model.ImagePost;
+import com.avinash.danumalk.dto.TextPostDTO;
+import com.avinash.danumalk.dto.TextPostMapper;
 import com.avinash.danumalk.model.TextPost;
 import com.avinash.danumalk.repository.TextPostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -16,32 +18,44 @@ public class TextPostService {
     @Autowired
     private TextPostRepository textPostRepository;
 
-    public List<TextPost> getAllTextPosts() {
-        return textPostRepository.findAll();
+    @Autowired
+    private TextPostMapper textPostMapper; // Add the TextPostMapper
+
+    public List<TextPostDTO> getAllTextPosts() {
+        List<TextPost> textPosts = textPostRepository.findAll();
+        return Collections.singletonList(textPostMapper.textPostToDTO((TextPost) textPosts)); // Use the mapper to convert to DTOs
     }
 
-    public TextPost getTextPostById(Long textPostId) {
-        return textPostRepository.findById(textPostId).orElse(null);
+    public TextPostDTO getTextPostById(Long textPostId) {
+        TextPost textPost = textPostRepository.findById(textPostId).orElse(null);
+        if (textPost != null) {
+            return textPostMapper.textPostToDTO(textPost); // Use the mapper to convert to DTO
+        }
+        return null;
     }
 
-    public TextPost createTextPost(TextPost textPost) {
-        return (TextPost) postService.createPost(textPost);
+    public TextPostDTO createTextPost(TextPostDTO textPostDTO) {
+        TextPost textPost = textPostMapper.dtoToTextPost(textPostDTO); // Use the mapper to convert to an entity
+        TextPost savedTextPost = textPostRepository.save(textPost);
+        return textPostMapper.textPostToDTO(savedTextPost); // Use the mapper to convert back to DTO
     }
 
-    public TextPost updateTextPost(Long textPostId, TextPost updatedTextPost) {
+    public TextPostDTO updateTextPost(Long textPostId, TextPostDTO updatedTextPostDTO) {
         if (textPostRepository.existsById(textPostId)) {
-            updatedTextPost.setPostId(textPostId);
-            TextPost savedTextPost = textPostRepository.save(updatedTextPost);
-            // Update the post in the main post table and return the updated object
-            return (TextPost) postService.updatePost(textPostId, savedTextPost);
+            TextPost textPost = textPostMapper.dtoToTextPost(updatedTextPostDTO); // Use the mapper to convert to an entity
+            textPost.setPostId(textPostId);
+            TextPost savedTextPost = textPostRepository.save(textPost);
+            return textPostMapper.textPostToDTO(savedTextPost); // Use the mapper to convert back to DTO
         }
         return null; // TextPost not found
     }
 
 
-
     public boolean deleteTextPost(Long textPostId) {
-        // Call the common deletePost method from PostService
-        return postService.deletePost(textPostId);
+        if (textPostRepository.existsById(textPostId)) {
+            textPostRepository.deleteById(textPostId);
+            return true;
+        }
+        return false; // TextPost not found
     }
 }

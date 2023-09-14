@@ -16,4 +16,7 @@ public class VideoPost extends Post{
 
     @Column(name = "video_data")
     private String videoUrl;
+
+    @Column(name = "video_description", length = 1000) // Video description field
+    private String videoDescription;
 }

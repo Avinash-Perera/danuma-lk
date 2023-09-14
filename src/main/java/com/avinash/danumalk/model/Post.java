@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,11 +26,8 @@ public class Post {
     @Column(name = "post_id")
     private Long postId;
 
-    @Column(name = "title", length = 1000)
+    @Column(name = "title", length = 200)
     private String title;
-
-    @Column(name = "description", length = 500)
-    private String description;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "post_type")
