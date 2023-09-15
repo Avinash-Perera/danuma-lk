@@ -1,7 +1,7 @@
 package com.avinash.danumalk.controller;
 
-import com.avinash.danumalk.model.Comment;
-import com.avinash.danumalk.service.comment.CommentService;
+import com.avinash.danumalk.dto.CommentDTO;
+import com.avinash.danumalk.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,20 +18,20 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("/post/{postId}")
-    public ResponseEntity<Comment> createCommentOnPost(@PathVariable Long postId, @RequestBody Comment comment) {
-        Comment createdComment = commentService.createCommentOnPost(postId, comment);
+    public ResponseEntity<CommentDTO> createCommentOnPost(@PathVariable Long postId, @RequestBody CommentDTO commentDTO) {
+        CommentDTO createdComment = commentService.createCommentOnPost(postId, commentDTO);
         return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
     }
 
     @PostMapping("/reply/{parentCommentId}")
-    public ResponseEntity<Comment> createReplyToComment(@PathVariable Long parentCommentId, @RequestBody Comment reply) {
-        Comment createdReply = commentService.createReplyToComment(parentCommentId, reply);
+    public ResponseEntity<CommentDTO> createReplyToComment(@PathVariable Long parentCommentId, @RequestBody CommentDTO replyCommentDTO) {
+        CommentDTO createdReply = commentService.createReplyToComment(parentCommentId, replyCommentDTO);
         return new ResponseEntity<>(createdReply, HttpStatus.CREATED);
     }
 
     @PutMapping("/{commentId}")
-    public ResponseEntity<Comment> updateComment(@PathVariable Long commentId, @RequestBody Comment updatedComment) {
-        Comment updated = commentService.updateComment(commentId, updatedComment);
+    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId, @RequestBody CommentDTO updatedCommentDTO) {
+        CommentDTO updated = commentService.updateComment(commentId, updatedCommentDTO);
         if (updated != null) {
             return new ResponseEntity<>(updated, HttpStatus.OK);
         }
@@ -45,17 +45,17 @@ public class CommentController {
     }
 
     @GetMapping("/{commentId}")
-    public ResponseEntity<Comment> getCommentById(@PathVariable Long commentId) {
-        Comment comment = commentService.getCommentById(commentId);
-        if (comment != null) {
-            return new ResponseEntity<>(comment, HttpStatus.OK);
+    public ResponseEntity<CommentDTO> getCommentById(@PathVariable Long commentId) {
+        CommentDTO commentDTO = commentService.getCommentById(commentId);
+        if (commentDTO != null) {
+            return new ResponseEntity<>(commentDTO, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/post/{postId}")
-    public ResponseEntity<List<Comment>> getAllCommentsForPost(@PathVariable Long postId) {
-        List<Comment> comments = commentService.getAllCommentsForPost(postId);
-        return new ResponseEntity<>(comments, HttpStatus.OK);
+    public ResponseEntity<List<CommentDTO>> getAllCommentsForPost(@PathVariable Long postId) {
+        List<CommentDTO> commentDTOs = commentService.getAllCommentsForPost(postId);
+        return new ResponseEntity<>(commentDTOs, HttpStatus.OK);
     }
 }

@@ -1,7 +1,5 @@
 package com.avinash.danumalk.dto;
 
-import com.avinash.danumalk.model.Comment;
-import com.avinash.danumalk.model.PostType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,13 +10,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostDTO {
+public class CommentDTO {
+    private Long commentId;
     private Long postId;
-    private String title;
-    private PostType postType;
+    private Long parentCommentId;
+    private List<CommentDTO> replyComments; // Store full reply comments here
+    private String content;
     private Date createdAt;
     private Date updatedAt;
-
-
 
 }
