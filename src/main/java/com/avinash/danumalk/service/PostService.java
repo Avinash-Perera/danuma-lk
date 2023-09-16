@@ -7,6 +7,7 @@ import com.avinash.danumalk.repository.ImagePostRepository;
 import com.avinash.danumalk.repository.PostRepository;
 import com.avinash.danumalk.repository.TextPostRepository;
 import com.avinash.danumalk.repository.VideoPostRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +15,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class PostService {
-    @Autowired
-    private PostRepository postRepository;
 
-    @Autowired
-    private PostMapper postMapper; // Inject the PostMapper
+    private final PostRepository postRepository;
+    private final PostMapper postMapper;
 
     public List<PostDTO> getAllPosts() {
         // Retrieve all posts, including subtypes, sorted by createdAt in descending order

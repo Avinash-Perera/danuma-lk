@@ -4,6 +4,7 @@ import com.avinash.danumalk.dto.ImagePostDTO;
 import com.avinash.danumalk.dto.ImagePostMapper;
 import com.avinash.danumalk.model.ImagePost;
 import com.avinash.danumalk.repository.ImagePostRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,13 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class ImagePostService {
-
-    @Autowired
-    private ImagePostRepository imagePostRepository;
-
-    @Autowired
-    private ImagePostMapper imagePostMapper; // Add the ImagePostMapper
+    private final ImagePostRepository imagePostRepository;
+    private final ImagePostMapper imagePostMapper; // Add the ImagePostMapper
 
     public List<ImagePostDTO> getAllImagePosts() {
         List<ImagePost> imagePosts = imagePostRepository.findAll();

@@ -4,6 +4,7 @@ import com.avinash.danumalk.dto.VideoPostDTO;
 import com.avinash.danumalk.dto.VideoPostMapper;
 import com.avinash.danumalk.model.VideoPost;
 import com.avinash.danumalk.repository.VideoPostRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,13 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class VideoPostService {
-    @Autowired
-    private PostService postService;
-    @Autowired
-    private VideoPostRepository videoPostRepository;
-    @Autowired
-    private VideoPostMapper videoPostMapper; // Add the VideoPostMapper
+    private final VideoPostRepository videoPostRepository;
+    private final VideoPostMapper videoPostMapper; // Add the VideoPostMapper
 
     public List<VideoPostDTO> getAllVideoPosts() {
         List<VideoPost> videoPosts = videoPostRepository.findAll();

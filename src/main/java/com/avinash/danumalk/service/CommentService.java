@@ -8,26 +8,21 @@ import com.avinash.danumalk.repository.CommentRepository;
 import com.avinash.danumalk.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
-public class CommentService {
+@AllArgsConstructor
+public class CommentService implements ICommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final CommentMapper commentMapper;
 
-    @Autowired
-    public CommentService(CommentRepository commentRepository, PostRepository postRepository, CommentMapper commentMapper) {
-        this.commentRepository = commentRepository;
-        this.postRepository = postRepository;
-        this.commentMapper = commentMapper;
-    }
 
+    @Override
     @Transactional
     public CommentDTO createCommentOnPost(Long postId, CommentDTO commentDTO) {
         Post post = postRepository.findById(postId)
@@ -40,6 +35,7 @@ public class CommentService {
         return commentMapper.commentToDTO(savedComment);
     }
 
+    @Override
     @Transactional
     public CommentDTO createReplyToComment(Long parentCommentId, CommentDTO replyCommentDTO) {
         Comment parentComment = commentRepository.findById(parentCommentId)
@@ -57,6 +53,7 @@ public class CommentService {
         return commentMapper.commentToDTO(savedReplyComment);
     }
 
+    @Override
     @Transactional
     public CommentDTO updateComment(Long commentId, CommentDTO updatedCommentDTO) {
         Comment existingComment = commentRepository.findById(commentId)
@@ -69,6 +66,7 @@ public class CommentService {
         return commentMapper.commentToDTO(savedComment);
     }
 
+    @Override
     @Transactional
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
@@ -88,6 +86,7 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    @Override
     @Transactional
     public CommentDTO getCommentById(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
@@ -95,6 +94,7 @@ public class CommentService {
         return commentMapper.commentToDTO(comment);
     }
 
+    @Override
     @Transactional
     public List<CommentDTO> getAllCommentsForPost(Long postId) {
         Post post = postRepository.findById(postId)
@@ -106,6 +106,7 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional
     public List<CommentDTO> getAllRepliesForParentComment(Long parentCommentId) {
         Comment parentComment = commentRepository.findById(parentCommentId)
@@ -119,5 +120,4 @@ public class CommentService {
                 .map(commentMapper::commentToDTO)
                 .collect(Collectors.toList());
     }
-
 }
