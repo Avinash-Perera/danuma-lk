@@ -1,2 +1,2 @@
 # danuma-lk
-danuma-lk Project
+Online Knowladge sharing plaftform
