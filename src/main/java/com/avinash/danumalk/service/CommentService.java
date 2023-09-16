@@ -45,6 +45,11 @@ public class CommentService {
         Comment parentComment = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new EntityNotFoundException("Parent comment not found"));
 
+        // Check if the parent comment has an associated post
+        if (parentComment.getPost() == null) {
+            throw new IllegalArgumentException("You cannot reply to this comment.");
+        }
+
         Comment replyComment = commentMapper.dtoToComment(replyCommentDTO);
         replyComment.setParentComment(parentComment);
 
@@ -100,4 +105,19 @@ public class CommentService {
                 .map(commentMapper::commentToDTO)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public List<CommentDTO> getAllRepliesForParentComment(Long parentCommentId) {
+        Comment parentComment = commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new EntityNotFoundException("Parent comment not found"));
+
+        // Retrieve all comments where the parentComment property matches the given parent comment
+        List<Comment> replyComments = commentRepository.findAllByParentComment(parentComment);
+
+        // Convert reply comments to DTOs
+        return replyComments.stream()
+                .map(commentMapper::commentToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

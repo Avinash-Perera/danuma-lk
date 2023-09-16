@@ -14,7 +14,7 @@ public class CommentDTO {
     private Long commentId;
     private Long postId;
     private Long parentCommentId;
-    private List<CommentDTO> replyComments; // Store full reply comments here
+    private List<Long> replyCommentIds;
     private String content;
     private Date createdAt;
     private Date updatedAt;

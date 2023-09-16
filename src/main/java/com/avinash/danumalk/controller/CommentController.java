@@ -58,4 +58,11 @@ public class CommentController {
         List<CommentDTO> commentDTOs = commentService.getAllCommentsForPost(postId);
         return new ResponseEntity<>(commentDTOs, HttpStatus.OK);
     }
+
+    @GetMapping("/replies/{parentCommentId}")
+    public ResponseEntity<List<CommentDTO>> getAllRepliesForParentComment(@PathVariable Long parentCommentId) {
+        List<CommentDTO> replyComments = commentService.getAllRepliesForParentComment(parentCommentId);
+        return new ResponseEntity<>(replyComments, HttpStatus.OK);
+    }
+
 }
