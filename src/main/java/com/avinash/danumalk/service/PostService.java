@@ -3,21 +3,17 @@ package com.avinash.danumalk.service;
 import com.avinash.danumalk.dto.PostDTO;
 import com.avinash.danumalk.dto.PostMapper;
 import com.avinash.danumalk.model.Post;
-import com.avinash.danumalk.repository.ImagePostRepository;
 import com.avinash.danumalk.repository.PostRepository;
-import com.avinash.danumalk.repository.TextPostRepository;
-import com.avinash.danumalk.repository.VideoPostRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class PostService {
-
     private final PostRepository postRepository;
     private final PostMapper postMapper;
 
@@ -38,4 +34,7 @@ public class PostService {
     }
 
 
+    public Optional<Post> findById(Long postId) {
+        return postRepository.findById(postId);
+    }
 }

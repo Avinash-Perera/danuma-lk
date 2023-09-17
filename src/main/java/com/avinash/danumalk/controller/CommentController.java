@@ -2,6 +2,7 @@ package com.avinash.danumalk.controller;
 
 import com.avinash.danumalk.dto.CommentDTO;
 import com.avinash.danumalk.service.CommentService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/comments")
 @CrossOrigin
+@AllArgsConstructor
 public class CommentController {
-
-    @Autowired
-    private CommentService commentService;
+    private final CommentService commentService;
 
     @PostMapping("/post/{postId}")
     public ResponseEntity<CommentDTO> createCommentOnPost(@PathVariable Long postId, @RequestBody CommentDTO commentDTO) {

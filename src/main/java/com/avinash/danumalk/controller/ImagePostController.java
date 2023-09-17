@@ -5,6 +5,7 @@ import com.avinash.danumalk.model.Comment;
 import com.avinash.danumalk.model.ImagePost;
 import com.avinash.danumalk.model.PostType;
 import com.avinash.danumalk.service.ImagePostService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +14,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts/image")
 @CrossOrigin
+@AllArgsConstructor
 public class ImagePostController {
-    @Autowired
-    private ImagePostService imagePostService;
+    private final ImagePostService imagePostService;
 
 
     //Create Image post

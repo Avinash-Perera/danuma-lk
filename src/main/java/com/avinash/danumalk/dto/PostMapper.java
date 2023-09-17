@@ -4,19 +4,15 @@ import com.avinash.danumalk.model.ImagePost;
 import com.avinash.danumalk.model.Post;
 import com.avinash.danumalk.model.TextPost;
 import com.avinash.danumalk.model.VideoPost;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class PostMapper {
-    @Autowired
-    private ImagePostMapper imagePostMapper;
-
-    @Autowired
-    private VideoPostMapper videoPostMapper;
-
-    @Autowired
-    private TextPostMapper textPostMapper;
+    private final ImagePostMapper imagePostMapper;
+    private final VideoPostMapper videoPostMapper;
+    private final TextPostMapper textPostMapper;
 
 
     public PostDTO postToDTO(Post post) {
@@ -28,14 +24,16 @@ public class PostMapper {
             return textPostMapper.textPostToDTO((TextPost) post);
         } else {
             // Handle other post types if needed
-            return new PostDTO(
-                    post.getPostId(),
-                    post.getTitle(),
-                    post.getPostType(),
-                    post.getCreatedAt(),
-                    post.getUpdatedAt()
-            );
+            return createErrorPostDTO();
+
         }
+    }
+
+    private PostDTO createErrorPostDTO() {
+        PostDTO errorDTO = new PostDTO();
+        errorDTO.setError(true);
+        errorDTO.setErrorMessage("Unsupported post type");
+        return errorDTO;
     }
 
 

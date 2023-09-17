@@ -5,6 +5,7 @@ import com.avinash.danumalk.model.Comment;
 import com.avinash.danumalk.model.PostType;
 import com.avinash.danumalk.model.VideoPost;
 import com.avinash.danumalk.service.VideoPostService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +14,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts/video")
 @CrossOrigin
+@AllArgsConstructor
 public class VideoPostController {
-    @Autowired
-    private VideoPostService videoPostService;
+    private final VideoPostService videoPostService;
 
     //Create Video post
     @PostMapping

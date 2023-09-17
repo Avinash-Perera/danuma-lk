@@ -1,13 +1,11 @@
 package com.avinash.danumalk.dto;
 
-import com.avinash.danumalk.model.Comment;
 import com.avinash.danumalk.model.PostType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -21,4 +19,9 @@ public class PostDTO {
 
 
 
+    public void setError(boolean b) {
+    }
+
+    public void setErrorMessage(String errorMessage) {
+    }
 }

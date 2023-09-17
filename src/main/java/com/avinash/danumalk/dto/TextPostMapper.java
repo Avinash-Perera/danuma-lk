@@ -17,6 +17,7 @@ public class TextPostMapper {
         return textPost;
     }
 
+    //Helper functions
     private TextPostDTO mapToDTO(TextPost textPost) {
         TextPostDTO textPostDTO = new TextPostDTO();
         textPostDTO.setPostId(textPost.getPostId());
@@ -24,6 +25,7 @@ public class TextPostMapper {
         textPostDTO.setPostType(textPost.getPostType());
         textPostDTO.setCreatedAt(textPost.getCreatedAt());
         textPostDTO.setUpdatedAt(textPost.getUpdatedAt());
+
         return textPostDTO;
     }
 
@@ -34,6 +36,7 @@ public class TextPostMapper {
         textPost.setPostType(textPostDTO.getPostType());
         textPost.setCreatedAt(textPostDTO.getCreatedAt());
         textPost.setUpdatedAt(textPostDTO.getUpdatedAt());
+
         return textPost;
     }
 }

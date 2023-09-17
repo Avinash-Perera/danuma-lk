@@ -6,6 +6,7 @@ import com.avinash.danumalk.model.Post;
 import com.avinash.danumalk.model.PostType;
 import com.avinash.danumalk.model.TextPost;
 import com.avinash.danumalk.service.TextPostService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,10 +15,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts/text")
 @CrossOrigin
+@AllArgsConstructor
 public class TextPostController {
-
-    @Autowired
-    private TextPostService textPostService;
+    private final TextPostService textPostService;
 
     @PostMapping
     public TextPostDTO createTextPost(@RequestBody TextPostDTO textPostDTO) {

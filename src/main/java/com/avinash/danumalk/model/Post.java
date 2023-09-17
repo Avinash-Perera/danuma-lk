@@ -18,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
+
     public Post(Long postId) {
         this.postId = postId;
     }

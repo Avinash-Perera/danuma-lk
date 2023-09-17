@@ -1,4 +1,4 @@
-package com.avinash.danumalk.service.reactions;
+package com.avinash.danumalk.service;
 
 import com.avinash.danumalk.model.Reaction;
 import com.avinash.danumalk.repository.ReactionRepository;
@@ -22,10 +22,6 @@ public class ReactionService {
         reactionRepository.deleteById(reactionId);
     }
 
-    public List<Reaction> getAllReactionsForPost(Long postId) {
-        // Implement logic to retrieve all reactions for a specific post
-        return reactionRepository.findAllByPostPostId(postId);
-    }
 
 
 }
