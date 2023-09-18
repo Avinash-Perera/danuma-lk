@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class CommentService implements ICommentService {
+public class CommentServiceImpl implements ICommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final CommentMapper commentMapper;

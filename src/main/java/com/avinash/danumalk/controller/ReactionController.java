@@ -6,8 +6,9 @@ import com.avinash.danumalk.model.Like;
 import com.avinash.danumalk.model.Post;
 import com.avinash.danumalk.model.Reaction;
 import com.avinash.danumalk.service.PostService;
-import com.avinash.danumalk.service.ReactionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.avinash.danumalk.service.ReactionServiceImpl;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,13 +16,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/reactions")
+@AllArgsConstructor
 public class ReactionController {
-
-    @Autowired
-    private ReactionService reactionService;
-
-    @Autowired
-    private PostService postService;
+    private final ReactionServiceImpl reactionServiceImpl;
+    private final PostService postService;
 
 
     // Create a Like reaction for a post
@@ -35,7 +33,7 @@ public class ReactionController {
 
         Like like = new Like();
         like.setPost(postOptional.get());
-        Reaction addedReaction = reactionService.addReaction(like);
+        Reaction addedReaction = reactionServiceImpl.addReaction(like);
 
         // Create a ReactionDTO for the response
         ReactionDTO reactionDTO = new ReactionDTO();
@@ -56,7 +54,7 @@ public class ReactionController {
 
         Dislike dislike = new Dislike();
         dislike.setPost(postOptional.get());
-        Reaction addedReaction = reactionService.addReaction(dislike);
+        Reaction addedReaction = reactionServiceImpl.addReaction(dislike);
 
         // Create a ReactionDTO for the response
         ReactionDTO reactionDTO = new ReactionDTO();
@@ -70,7 +68,28 @@ public class ReactionController {
     // Remove a reaction by its ID
     @DeleteMapping("/{reactionId}")
     public void removeReaction(@PathVariable Long reactionId) {
-        reactionService.removeReaction(reactionId);
+        reactionServiceImpl.removeReaction(reactionId);
     }
 
+    @GetMapping("/likes/{postId}")
+    public ResponseEntity<?> getTotalLikesForPost(@PathVariable Long postId) {
+        int totalLikes = reactionServiceImpl.getTotalLikesForPost(postId);
+
+        if (totalLikes < 0) {
+            return ResponseEntity.notFound().build(); // Return 404 Not Found if post not found
+        }
+
+        return new ResponseEntity<>(totalLikes, HttpStatus.OK);
+    }
+
+    @GetMapping("/dislikes/{postId}")
+    public ResponseEntity<?> getTotalDislikesForPost(@PathVariable Long postId) {
+        int totalDislikes = reactionServiceImpl.getTotalDislikesForPost(postId);
+
+        if (totalDislikes < 0) {
+            return ResponseEntity.notFound().build(); // Return 404 Not Found if post not found
+        }
+
+        return new ResponseEntity<>(totalDislikes, HttpStatus.OK);
+    }
 }
