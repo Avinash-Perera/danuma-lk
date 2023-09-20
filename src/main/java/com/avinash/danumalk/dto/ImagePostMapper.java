@@ -5,6 +5,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ImagePostMapper {
+
+    /**
+     * Converts an ImagePost object to an ImagePostDTO object.
+     *
+     * @param  imagePost  the ImagePost object to be converted
+     * @return            the converted ImagePostDTO object
+     */
     public ImagePostDTO imagePostToDTO(ImagePost imagePost) {
         ImagePostDTO imagePostDTO = mapToDTO(imagePost);
         imagePostDTO.setImageUrl(imagePost.getImageUrl());
@@ -12,6 +19,13 @@ public class ImagePostMapper {
         return imagePostDTO;
     }
 
+
+    /**
+     * Converts an ImagePostDTO object to an ImagePost object.
+     *
+     * @param  imagePostDTO  the ImagePostDTO object to be converted
+     * @return               the converted ImagePost object
+     */
     public ImagePost dtoToImagePost(ImagePostDTO imagePostDTO) {
         ImagePost imagePost = mapToImagePost(imagePostDTO);
         imagePost.setImageUrl(imagePostDTO.getImageUrl());
@@ -19,6 +33,7 @@ public class ImagePostMapper {
         return imagePost;
     }
 
+    //helper methods
     private ImagePostDTO mapToDTO(ImagePost imagePost) {
         ImagePostDTO imagePostDTO = new ImagePostDTO();
         imagePostDTO.setPostId(imagePost.getPostId());

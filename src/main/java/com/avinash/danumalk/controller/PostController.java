@@ -16,11 +16,22 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
+    /**
+     * Returns a list of all posts.
+     *
+     * @return a list of PostDTO objects representing all posts
+     */
     @GetMapping
     public List<PostDTO> getAllPosts() {
         return postService.getAllPosts();
     }
 
+    /**
+     * Retrieves a specific post by its ID.
+     *
+     * @param  postId  the ID of the post to retrieve
+     * @return         the ResponseEntity containing the PostDTO if found, or a not found response if not found
+     */
     @GetMapping("/{postId}")
     public ResponseEntity<PostDTO> getPostById(@PathVariable Long postId) {
         PostDTO postDTO = postService.getPostById(postId);

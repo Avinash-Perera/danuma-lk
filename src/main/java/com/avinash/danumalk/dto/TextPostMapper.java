@@ -5,12 +5,25 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TextPostMapper {
+
+    /**
+     * Generates a TextPostDTO object from a TextPost object.
+     *
+     * @param  textPost  the TextPost object to convert
+     * @return           the TextPostDTO object generated
+     */
     public TextPostDTO textPostToDTO(TextPost textPost) {
         TextPostDTO textPostDTO = mapToDTO(textPost);
         textPostDTO.setContent(textPost.getContent());
         return textPostDTO;
     }
 
+    /**
+     * Converts a TextPostDTO object to a TextPost object.
+     *
+     * @param  textPostDTO  the TextPostDTO object to convert
+     * @return              the converted TextPost object
+     */
     public TextPost dtoToTextPost(TextPostDTO textPostDTO) {
         TextPost textPost = mapToTextPost(textPostDTO);
         textPost.setContent(textPostDTO.getContent());

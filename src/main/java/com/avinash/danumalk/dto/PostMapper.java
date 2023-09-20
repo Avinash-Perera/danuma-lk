@@ -15,6 +15,12 @@ public class PostMapper {
     private final TextPostMapper textPostMapper;
 
 
+    /**
+     * Converts a Post object to a PostDTO object.
+     *
+     * @param  post   the Post object to convert
+     * @return        the converted PostDTO object
+     */
     public PostDTO postToDTO(Post post) {
         if (post instanceof ImagePost) {
             return imagePostMapper.imagePostToDTO((ImagePost) post);
@@ -29,6 +35,11 @@ public class PostMapper {
         }
     }
 
+    /**
+     * Creates a new PostDTO object representing an error.
+     *
+     * @return          The newly created error PostDTO object.
+     */
     private PostDTO createErrorPostDTO() {
         PostDTO errorDTO = new PostDTO();
         errorDTO.setError(true);
@@ -36,6 +47,12 @@ public class PostMapper {
         return errorDTO;
     }
 
+    /**
+     * Converts a PostDTO object to a Post object.
+     *
+     * @param  postDTO   the PostDTO object to be converted
+     * @return           the converted Post object
+     */
 
     public Post dtoToPost(PostDTO postDTO) {
         Post post = new Post();
