@@ -8,6 +8,7 @@ import com.avinash.danumalk.service.VideoPostService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,32 +42,33 @@ public class VideoPostController {
      *
      * @param videoPostId The ID of the VideoPost to update.
      * @param updatedVideoPostDTO The updated VideoPostDTO containing the new data.
-     * @return The updated VideoPostDTO.
-     * @throws IllegalArgumentException If the provided ID does not match the post type
-     *                                  or if the post type is changed.
+     * @return ResponseEntity with the updated VideoPostDTO and an appropriate HTTP status.
      */
     @PutMapping("/{videoPostId}")
-    public VideoPostDTO updateVideoPost(@PathVariable Long videoPostId, @RequestBody @Valid  VideoPostDTO updatedVideoPostDTO) {
+    public ResponseEntity<VideoPostDTO> updateVideoPost(@PathVariable Long videoPostId, @RequestBody @Valid  VideoPostDTO updatedVideoPostDTO) {
         VideoPostDTO existingVideoPostDTO = videoPostService.getVideoPostById(videoPostId);
         if (existingVideoPostDTO != null) {
             // Check if the provided ID matches the post type
             if (existingVideoPostDTO.getPostType() != PostType.VIDEO) {
-                throw new IllegalArgumentException("Invalid post type for VideoPost.");
+                return ResponseEntity.badRequest().body(new VideoPostDTO()); // Return a bad request response
             }
 
             // Check if the PostType in the updated post matches the existing PostType
             if (updatedVideoPostDTO.getPostType() != PostType.VIDEO) {
-                throw new IllegalArgumentException("Cannot change the post type for VideoPost.");
+                return ResponseEntity.badRequest().body(new VideoPostDTO()); // Return a bad request response
             }
+
             // Update other properties of the existingVideoPostDTO as needed
             existingVideoPostDTO.setTitle(updatedVideoPostDTO.getTitle());
             existingVideoPostDTO.setVideoUrl(updatedVideoPostDTO.getVideoUrl());
             existingVideoPostDTO.setVideoDescription(updatedVideoPostDTO.getVideoDescription());
 
-            return videoPostService.updateVideoPost(videoPostId, updatedVideoPostDTO);
+            VideoPostDTO updatedPost = videoPostService.updateVideoPost(videoPostId, existingVideoPostDTO);
+            return ResponseEntity.ok(updatedPost); // Return an OK response with the updated VideoPostDTO
         }
-        return null; // VideoPost not found
+        return ResponseEntity.notFound().build(); // VideoPost not found
     }
+
 
     /**
      * Deletes a video post by its ID.

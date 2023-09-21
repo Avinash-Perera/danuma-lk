@@ -5,6 +5,7 @@ import com.avinash.danumalk.model.PostType;
 import com.avinash.danumalk.service.ImagePostService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,12 +36,12 @@ public class ImagePostController {
     /**
      * Updates an ImagePost with the provided imagePostId and updatedImagePostDTO.
      *
-     * @param  imagePostId              the ID of the ImagePost to be updated
-     * @param  updatedImagePostDTO      the updated ImagePostDTO object containing new values
-     * @return                          the updated ImagePostDTO object
+     * @param imagePostId         the ID of the ImagePost to be updated
+     * @param updatedImagePostDTO the updated ImagePostDTO object containing new values
+     * @return ResponseEntity containing the updated ImagePostDTO object
      */
     @PutMapping("/{imagePostId}")
-    public ImagePostDTO updateImagePost(@PathVariable Long imagePostId, @RequestBody @Valid  ImagePostDTO updatedImagePostDTO) {
+    public ResponseEntity<ImagePostDTO> updateImagePost(@PathVariable Long imagePostId, @RequestBody @Valid ImagePostDTO updatedImagePostDTO) {
         ImagePostDTO existingImagePostDTO = imagePostService.getImagePostById(imagePostId);
         if (existingImagePostDTO != null) {
             // Check if the provided ID matches the post type
@@ -56,10 +57,12 @@ public class ImagePostController {
             existingImagePostDTO.setImageUrl(updatedImagePostDTO.getImageUrl());
             existingImagePostDTO.setImageDescription(updatedImagePostDTO.getImageDescription());
 
-            return imagePostService.updateImagePost(imagePostId, updatedImagePostDTO);
+            ImagePostDTO updatedPostDTO = imagePostService.updateImagePost(imagePostId, existingImagePostDTO);
+            return ResponseEntity.ok(updatedPostDTO);
         }
-        return null; // ImagePost not found
+        return ResponseEntity.notFound().build(); // ImagePost not found
     }
+
 
 
     /**
