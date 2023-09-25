@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for the ImagePostController class.
+ */
 public class ImagePostControllerTest {
     @InjectMocks
     private ImagePostController imagePostController;
@@ -26,7 +29,9 @@ public class ImagePostControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-
+    /**
+     * Test case for creating an image post with a valid post type.
+     */
     @Test
     void createImagePost_validPostType_returnsCreatedPost() {
         // Arrange
@@ -42,6 +47,9 @@ public class ImagePostControllerTest {
         assertEquals(imagePostDTO, result);
     }
 
+    /**
+     * Test case for attempting to create an image post with an invalid post type, which should throw an exception.
+     */
     @Test
     void createImagePost_invalidPostType_throwsIllegalArgumentException() {
         // Arrange
@@ -53,6 +61,9 @@ public class ImagePostControllerTest {
                 () -> imagePostController.createImagePost(imagePostDTO));
     }
 
+    /**
+     * Test case for updating an existing image post with valid data.
+     */
     @Test
     public void testUpdateImagePost() {
         // Arrange
@@ -80,7 +91,9 @@ public class ImagePostControllerTest {
         verify(imagePostService, times(1)).updateImagePost(imagePostId, updatedImagePostDTO);
     }
 
-
+    /**
+     * Test case for attempting to update an image post with an invalid post type, which should throw an exception.
+     */
     @Test
     public void testUpdateImagePost_invalidPostType() {
         // Prepare
@@ -97,6 +110,9 @@ public class ImagePostControllerTest {
         assertThrows(IllegalArgumentException.class, () -> imagePostController.updateImagePost(imagePostId, updatedImagePostDTO));
     }
 
+    /**
+     * Test case for attempting to change the post type when updating an image post, which should throw an exception.
+     */
     @Test
     public void testUpdateImagePost_changePostType() {
         // Prepare
@@ -113,6 +129,9 @@ public class ImagePostControllerTest {
         assertThrows(IllegalArgumentException.class, () -> imagePostController.updateImagePost(imagePostId, updatedImagePostDTO));
     }
 
+    /**
+     * Test case for attempting to update a non-existent image post, which should return a 404 status code.
+     */
     @Test
     public void testUpdateImagePost_ImagePostNotFound() {
         // Arrange
@@ -132,6 +151,9 @@ public class ImagePostControllerTest {
         verify(imagePostService, never()).updateImagePost(anyLong(), any());
     }
 
+    /**
+     * Test case for successfully deleting an image post.
+     */
     @Test
     public void testDeleteImagePost_Success() {
         // Arrange
@@ -151,6 +173,9 @@ public class ImagePostControllerTest {
         verify(imagePostService, times(1)).deleteImagePost(imagePostId);
     }
 
+    /**
+     * Test case for attempting to delete a non-existent image post, which should return false.
+     */
     @Test
     public void testDeleteImagePost_ImagePostNotFound() {
         // Arrange
@@ -167,6 +192,9 @@ public class ImagePostControllerTest {
         verify(imagePostService, never()).deleteImagePost(imagePostId);
     }
 
+    /**
+     * Test case for attempting to delete an image post with an invalid post type, which should throw an exception.
+     */
     @Test
     public void testDeleteImagePost_InvalidPostType() {
         // Arrange

@@ -5,6 +5,7 @@ import com.avinash.danumalk.model.PostType;
 import com.avinash.danumalk.service.TextPostService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +42,7 @@ public class TextPostController {
      */
     // Update TextPost by ID
     @PutMapping("/{textPostId}")
-    public TextPostDTO updateTextPost(@PathVariable Long textPostId, @RequestBody @Valid  TextPostDTO updatedTextPostDTO) {
+    public ResponseEntity<TextPostDTO> updateTextPost(@PathVariable Long textPostId, @RequestBody @Valid TextPostDTO updatedTextPostDTO) {
         TextPostDTO existingTextPostDTO = textPostService.getTextPostById(textPostId);
         if (existingTextPostDTO != null) {
             // Check if the provided ID matches the post type
@@ -57,10 +58,16 @@ public class TextPostController {
             existingTextPostDTO.setContent(updatedTextPostDTO.getContent());
 
             // Save the updated TextPostDTO
-            return textPostService.updateTextPost(textPostId, existingTextPostDTO);
+            TextPostDTO updatedTextPost = textPostService.updateTextPost(textPostId, existingTextPostDTO);
+
+            // Return a ResponseEntity with the updated TextPostDTO and an OK status code
+            return ResponseEntity.ok(updatedTextPost);
         }
-        return null; // TextPost not found
+
+        // If TextPost is not found, return a ResponseEntity with a Not Found status code
+        return ResponseEntity.notFound().build();
     }
+
 
     /**
      * Delete a TextPost by ID.
