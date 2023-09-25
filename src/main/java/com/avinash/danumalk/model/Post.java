@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -45,12 +46,11 @@ public class Post {
     // Define a one-to-many relationship with comments
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("post") // Use this annotation
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
     // Define a one-to-many relationship with reactions
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("post")
     private List<Reaction> reactions;
-
 
 }

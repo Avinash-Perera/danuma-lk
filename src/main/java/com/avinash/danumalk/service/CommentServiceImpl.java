@@ -21,7 +21,13 @@ public class CommentServiceImpl implements ICommentService {
     private final PostRepository postRepository;
     private final CommentMapper commentMapper;
 
-
+    /**
+     * Creates a comment on a post.
+     *
+     * @param  postId      the ID of the post to comment on
+     * @param  commentDTO  the comment DTO containing the details of the comment
+     * @return             the created comment DTO
+     */
     @Override
     @Transactional
     public CommentDTO createCommentOnPost(Long postId, CommentDTO commentDTO) {
@@ -35,6 +41,13 @@ public class CommentServiceImpl implements ICommentService {
         return commentMapper.commentToDTO(savedComment);
     }
 
+    /**
+     * Create a reply to a comment.
+     *
+     * @param  parentCommentId    the ID of the parent comment
+     * @param  replyCommentDTO    the DTO object containing the reply comment details
+     * @return                    the DTO object representing the created reply comment
+     */
     @Override
     @Transactional
     public CommentDTO createReplyToComment(Long parentCommentId, CommentDTO replyCommentDTO) {
@@ -53,6 +66,13 @@ public class CommentServiceImpl implements ICommentService {
         return commentMapper.commentToDTO(savedReplyComment);
     }
 
+    /**
+     * Updates a comment with the given commentId using the information provided in the updatedCommentDTO.
+     *
+     * @param  commentId              the ID of the comment to be updated
+     * @param  updatedCommentDTO      the updated comment data
+     * @return                        the updated comment as a CommentDTO object
+     */
     @Override
     @Transactional
     public CommentDTO updateComment(Long commentId, CommentDTO updatedCommentDTO) {
@@ -66,6 +86,11 @@ public class CommentServiceImpl implements ICommentService {
         return commentMapper.commentToDTO(savedComment);
     }
 
+    /**
+     * Deletes a comment by the comment ID.
+     *
+     * @param  commentId  the ID of the comment to be deleted
+     */
     @Override
     @Transactional
     public void deleteComment(Long commentId) {
@@ -86,6 +111,12 @@ public class CommentServiceImpl implements ICommentService {
         commentRepository.delete(comment);
     }
 
+    /**
+     * Retrieves a comment by its ID.
+     *
+     * @param  commentId  the ID of the comment to retrieve
+     * @return            the DTO representation of the retrieved comment
+     */
     @Override
     @Transactional
     public CommentDTO getCommentById(Long commentId) {
@@ -94,6 +125,12 @@ public class CommentServiceImpl implements ICommentService {
         return commentMapper.commentToDTO(comment);
     }
 
+    /**
+     * Retrieves all comments for a given post.
+     *
+     * @param  postId  the ID of the post
+     * @return         a list of CommentDTO objects representing the comments for the post
+     */
     @Override
     @Transactional
     public List<CommentDTO> getAllCommentsForPost(Long postId) {
@@ -106,6 +143,12 @@ public class CommentServiceImpl implements ICommentService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves all replies for a parent comment.
+     *
+     * @param  parentCommentId  the ID of the parent comment
+     * @return                  a list of CommentDTO objects representing the reply comments
+     */
     @Override
     @Transactional
     public List<CommentDTO> getAllRepliesForParentComment(Long parentCommentId) {

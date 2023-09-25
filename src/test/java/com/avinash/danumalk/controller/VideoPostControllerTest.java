@@ -13,7 +13,8 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-public class videoPostControllerTest {
+
+public class VideoPostControllerTest {
     @InjectMocks
     private VideoPostController videoPostController;
 
@@ -25,6 +26,9 @@ public class videoPostControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Test case for creating a valid VideoPost.
+     */
     @Test
     void createVideoPost_validPostType_returnsCreatedPost() {
         // Arrange
@@ -40,6 +44,9 @@ public class videoPostControllerTest {
         assertEquals(videoPostDTO, result);
     }
 
+    /**
+     * Test case for attempting to create a VideoPost with an invalid post type.
+     */
     @Test
     void createVideoPost_invalidPostType_throwsIllegalArgumentException() {
         // Arrange
@@ -51,6 +58,9 @@ public class videoPostControllerTest {
                 () -> videoPostController.createVideoPost(videoPostDTO));
     }
 
+    /**
+     * Test case for updating an existing VideoPost with valid data.
+     */
     @Test
     public void testUpdateVideoPost_existingVideoPostFound_returnUpdatedVideoPostDTO() {
         // Arrange
@@ -78,6 +88,9 @@ public class videoPostControllerTest {
         assertEquals(updatedVideoPostDTO, response.getBody());
     }
 
+    /**
+     * Test case for attempting to update an existing VideoPost with an invalid post type.
+     */
     @Test
     public void testUpdateVideoPost_existingVideoPostFound_invalidPostType_returnBadRequest() {
         // Arrange
@@ -98,6 +111,9 @@ public class videoPostControllerTest {
         assertNotNull(response.getBody());
     }
 
+    /**
+     * Test case for attempting to change the post type when updating an existing VideoPost.
+     */
     @Test
     public void testUpdateVideoPost_changePostType_returnBadRequest() {
         // Arrange
@@ -118,6 +134,9 @@ public class videoPostControllerTest {
         assertNotNull(response.getBody());
     }
 
+    /**
+     * Test case for attempting to update a non-existing VideoPost.
+     */
     @Test
     public void testUpdateVideoPost_existingVideoPostNotFound_returnNotFound() {
         // Arrange
@@ -135,6 +154,9 @@ public class videoPostControllerTest {
         assertNull(response.getBody());
     }
 
+    /**
+     * Test case for successfully deleting an existing VideoPost.
+     */
     @Test
     public void testDeleteVideoPost_Success() {
         // Arrange
@@ -154,6 +176,9 @@ public class videoPostControllerTest {
         verify(videoPostService, times(1)).deleteVideoPost(videoPostId);
     }
 
+    /**
+     * Test case for attempting to delete a non-existing VideoPost.
+     */
     @Test
     public void testDeleteVideoPost_VideoPostNotFound() {
         // Arrange
@@ -170,6 +195,9 @@ public class videoPostControllerTest {
         verify(videoPostService, never()).deleteVideoPost(videoPostId);
     }
 
+    /**
+     * Test case for attempting to delete a VideoPost with an invalid post type.
+     */
     @Test
     public void testDeleteVideoPost_InvalidPostType() {
         // Arrange

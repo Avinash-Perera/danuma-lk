@@ -22,7 +22,12 @@ public class ReactionController {
     private final PostService postService;
 
 
-    // Create a Like reaction for a post
+    /**
+     * Create a like reaction for a post.
+     *
+     * @param  postId  the ID of the post to create the like reaction for
+     * @return         the created like reaction as a ReactionDTO
+     */
     @PostMapping("/like/{postId}")
     public ResponseEntity<ReactionDTO> createLikeReaction(@PathVariable Long postId) {
         Optional<Post> postOptional = postService.findById(postId);
@@ -43,7 +48,12 @@ public class ReactionController {
         return ResponseEntity.ok(reactionDTO);
     }
 
-    // Create a Dislike reaction for a post
+    /**
+     * Creates a dislike reaction for a specific post.
+     *
+     * @param  postId  the ID of the post to create the dislike reaction for
+     * @return         the created ReactionDTO for the response
+     */
     @PostMapping("/dislike/{postId}")
     public ResponseEntity<ReactionDTO> createDislikeReaction(@PathVariable Long postId) {
         Optional<Post> postOptional = postService.findById(postId);
@@ -65,12 +75,22 @@ public class ReactionController {
     }
 
 
-    // Remove a reaction by its ID
+    /**
+     * Deletes a reaction with the given reaction ID.
+     *
+     * @param  reactionId  the ID of the reaction to be removed
+     */
     @DeleteMapping("/{reactionId}")
     public void removeReaction(@PathVariable Long reactionId) {
         reactionServiceImpl.removeReaction(reactionId);
     }
 
+    /**
+     * Retrieves the total number of likes for a specific post.
+     *
+     * @param  postId  the ID of the post
+     * @return         a ResponseEntity object containing the total number of likes for the post
+     */
     @GetMapping("/likes/{postId}")
     public ResponseEntity<?> getTotalLikesForPost(@PathVariable Long postId) {
         int totalLikes = reactionServiceImpl.getTotalLikesForPost(postId);
@@ -82,6 +102,12 @@ public class ReactionController {
         return new ResponseEntity<>(totalLikes, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves the total number of dislikes for a specific post.
+     *
+     * @param  postId  the ID of the post
+     * @return         the total number of dislikes for the post
+     */
     @GetMapping("/dislikes/{postId}")
     public ResponseEntity<?> getTotalDislikesForPost(@PathVariable Long postId) {
         int totalDislikes = reactionServiceImpl.getTotalDislikesForPost(postId);
