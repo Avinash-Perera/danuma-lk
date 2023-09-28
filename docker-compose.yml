@@ -1,0 +1,27 @@
+services:
+  db:
+    ports:
+      - 5432:5432
+    container_name: postgresql_container
+    image: postgres
+    environment:
+      - POSTGRES_DB=danuma-lk
+      - POSTGRES_PASSWORD=MyNewPass
+      - POSTGRES_USER=postgres
+    volumes:
+      - C:\postgres_datapart:/var/lib/postgresql/data
+    restart: always
+
+  backend:
+    build: .
+    container_name: danuma-lk_container
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/danuma-lk
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=MyNewPass
+    depends_on:
+      - db
+    restart: always
+
