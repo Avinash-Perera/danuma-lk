@@ -1,4 +1,9 @@
 FROM amazoncorretto:17
-COPY target/*.jar danuma-lk-0.0.1-SNAPSHOT.jar
+
+WORKDIR /app
+
+COPY target/danuma-lk-0.0.1-SNAPSHOT.jar /app/danuma-lk.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","danuma-lk-0.0.1-SNAPSHOT.jar"]
+
+CMD ["java", "-jar", "danuma-lk.jar"]
