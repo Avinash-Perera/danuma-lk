@@ -21,7 +21,8 @@ jobs:
           java-version: '17'
 
       - name: Unit Tests
-        run: mvn -B test --file pom.xml
+        run: mvn -B test --file pom.xml -D spring.datasource.url=jdbc:postgresql://db:5432/danuma-lk
+
 
       - name: Build the application
         run: |
