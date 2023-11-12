@@ -58,7 +58,7 @@ public class VideoPostService {
     public VideoPostDTO updateVideoPost(Long videoPostId, VideoPostDTO updatedVideoPostDTO) {
         if (videoPostRepository.existsById(videoPostId)) {
             VideoPost videoPost = videoPostMapper.dtoToVideoPost(updatedVideoPostDTO); // Use the mapper to convert to an entity
-            videoPost.setPostId(videoPostId);
+       videoPost.setPostId(videoPostId);
             VideoPost savedVideoPost = videoPostRepository.save(videoPost);
             return videoPostMapper.videoPostToDTO(savedVideoPost); // Use the mapper to convert back to DTO
         }

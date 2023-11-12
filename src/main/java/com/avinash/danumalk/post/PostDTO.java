@@ -26,7 +26,6 @@ public class PostDTO {
     private Date updatedAt;
 
 
-
     public void setError(boolean b) {
     }
 

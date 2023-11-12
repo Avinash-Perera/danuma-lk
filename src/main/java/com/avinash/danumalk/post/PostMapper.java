@@ -1,5 +1,4 @@
 package com.avinash.danumalk.post;
-
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
