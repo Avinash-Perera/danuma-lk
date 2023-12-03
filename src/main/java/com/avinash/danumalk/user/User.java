@@ -1,6 +1,7 @@
 package com.avinash.danumalk.user;
 
 import com.avinash.danumalk.token.Token;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,11 +38,10 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "profile_picture_id", referencedColumnName = "id")
-    private ProfilePicture profilePicture;
 
-
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("user")
+    private ProfilePic profilePic;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
