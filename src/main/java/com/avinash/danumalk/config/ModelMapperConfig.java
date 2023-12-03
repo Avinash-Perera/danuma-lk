@@ -11,11 +11,6 @@ public class ModelMapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
-        // Define a TypeMap to handle the mapping for VideoPost
-        modelMapper.createTypeMap(VideoPost.class, VideoPostDTO.class)
-                .addMapping(VideoPost::getVideoUrl, VideoPostDTO::setVideoUrl)
-                .addMapping(VideoPost::getVideoDescription, VideoPostDTO::setVideoDescription);
-
         // Define a TypeMap to handle the mapping for ImagePost
         modelMapper.createTypeMap(ImagePost.class, ImagePostDTO.class)
                 .addMapping(ImagePost::getImageUrl, ImagePostDTO::setImageUrl)

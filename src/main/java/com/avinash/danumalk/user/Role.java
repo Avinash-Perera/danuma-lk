@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import static com.avinash.danumalk.user.Permission.*;
 
+@Getter
 @RequiredArgsConstructor
 public enum Role {
 
@@ -20,27 +21,20 @@ public enum Role {
                     ADMIN_READ,
                     ADMIN_UPDATE,
                     ADMIN_DELETE,
-                    ADMIN_CREATE,
-                    MANAGER_READ,
-                    MANAGER_UPDATE,
-                    MANAGER_DELETE,
-                    MANAGER_CREATE
+                    ADMIN_CREATE
+
             )
     ),
-    MANAGER(
-            Set.of(
-                    MANAGER_READ,
-                    MANAGER_UPDATE,
-                    MANAGER_DELETE,
-                    MANAGER_CREATE
-            )
-    )
 
     ;
 
-    @Getter
     private final Set<Permission> permissions;
 
+    /**
+     * Retrieves the authorities of the user.
+     *
+     * @return         	a list of SimpleGrantedAuthority objects representing the user's authorities
+     */
     public List<SimpleGrantedAuthority> getAuthorities() {
         var authorities = getPermissions()
                 .stream()

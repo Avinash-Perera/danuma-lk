@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class PostMapper {
     private final ImagePostMapper imagePostMapper;
-    private final VideoPostMapper videoPostMapper;
     private final TextPostMapper textPostMapper;
 
 
@@ -19,9 +18,8 @@ public class PostMapper {
     public PostDTO postToDTO(Post post) {
         if (post instanceof ImagePost) {
             return imagePostMapper.imagePostToDTO((ImagePost) post);
-        } else if (post instanceof VideoPost) {
-            return videoPostMapper.videoPostToDTO((VideoPost) post);
-        } else if (post instanceof TextPost) {
+        }
+         else if (post instanceof TextPost) {
             return textPostMapper.textPostToDTO((TextPost) post);
         } else {
             // Handle other post types if needed
