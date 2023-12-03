@@ -39,10 +39,6 @@ public class User implements UserDetails {
     private List<Token> tokens;
 
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("user")
-    private ProfilePic profilePic;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();
