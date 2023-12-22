@@ -96,10 +96,10 @@ public class ImagePostControllerTest {
         // Prepare
         Long imagePostId = 1L;
         ImagePostDTO updatedImagePostDTO = new ImagePostDTO();
-        updatedImagePostDTO.setPostType(PostType.VIDEO);
+        updatedImagePostDTO.setPostType(PostType.TEXT);
 
         ImagePostDTO existingImagePostDTO = new ImagePostDTO();
-        existingImagePostDTO.setPostType(PostType.VIDEO);
+        existingImagePostDTO.setPostType(PostType.TEXT);
 
         when(imagePostService.getImagePostById(imagePostId)).thenReturn(existingImagePostDTO);
 
@@ -118,7 +118,7 @@ public class ImagePostControllerTest {
         updatedImagePostDTO.setPostType(PostType.IMAGE);
 
         ImagePostDTO existingImagePostDTO = new ImagePostDTO();
-        existingImagePostDTO.setPostType(PostType.VIDEO);
+        existingImagePostDTO.setPostType(PostType.TEXT);
 
         when(imagePostService.getImagePostById(imagePostId)).thenReturn(existingImagePostDTO);
 

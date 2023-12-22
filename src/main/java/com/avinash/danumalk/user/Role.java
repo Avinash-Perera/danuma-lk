@@ -15,19 +15,22 @@ import static com.avinash.danumalk.user.Permission.*;
 @RequiredArgsConstructor
 public enum Role {
 
-    USER(Collections.emptySet()),
+    USER(
+            Set.of(
+                    USER_READ, USER_UPDATE, USER_DELETE, USER_CREATE, POST_READ, POST_CREATE, POST_UPDATE, POST_DELETE,
+                    COMMENT_READ, COMMENT_CREATE, COMMENT_UPDATE, COMMENT_DELETE, REACTION_READ, REACTION_CREATE, REACTION_UPDATE,
+                    REACTION_DELETE
+    )),
     ADMIN(
             Set.of(
-                    ADMIN_READ,
-                    ADMIN_UPDATE,
-                    ADMIN_DELETE,
-                    ADMIN_CREATE
+                    ADMIN_READ, ADMIN_UPDATE, ADMIN_DELETE, ADMIN_CREATE, USER_READ, USER_UPDATE, USER_DELETE, USER_CREATE,
+                    POST_READ, POST_CREATE, POST_UPDATE, POST_DELETE, COMMENT_READ, COMMENT_CREATE, COMMENT_UPDATE, COMMENT_DELETE,
+                    REACTION_READ, REACTION_CREATE, REACTION_UPDATE, REACTION_DELETE
 
             )
     ),
 
     ;
-
     private final Set<Permission> permissions;
 
     /**
