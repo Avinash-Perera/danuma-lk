@@ -20,10 +20,11 @@ public class ProfileImageService {
     private final ProfileImageRepository repository;
     private final UserRepository userRepository;
 
+
+    @Transactional
     public String uploadImage(MultipartFile file, User user) throws IOException {
         // Check if the user already has a profile image
         if (user.getProfileImage() != null) {
-            // Handle the case where the user already has a profile image
             return "User already has a profile image.";
         }
 
@@ -31,7 +32,7 @@ public class ProfileImageService {
                 .name(file.getOriginalFilename())
                 .type(file.getContentType())
                 .imageData(ProfileImageUtils.compressImage(file.getBytes()))
-                .user(user) // Set the associated user
+                .user(user)
                 .build());
 
         // Set the profile image for the user
@@ -40,12 +41,19 @@ public class ProfileImageService {
         return "File uploaded successfully: " + file.getOriginalFilename();
     }
 
-
-
-    @Transactional
-    public byte[] downloadImage(User user) {
+    public byte[] getProfileImage(User user) {
+        // Retrieve the profile image for the authenticated user
         Optional<ProfileImage> dbImageData = repository.findByUser(user);
-        return dbImageData.map(profileImage -> ProfileImageUtils.decompressImage(profileImage.getImageData()))
-                .orElse(null);
+
+        // Check if the user has a profile image
+        if (dbImageData.isPresent()) {
+            return ProfileImageUtils.decompressImage(dbImageData.get().getImageData());
+        } else {
+            // Handle the case where the user does not have a profile image
+            return new byte[0];
+        }
+        //Did not handle an exception here
     }
+
+
 }
