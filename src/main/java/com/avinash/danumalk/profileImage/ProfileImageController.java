@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,7 +53,20 @@ public class ProfileImageController {
                 .body("User not authenticated.");
     }
 
+    @DeleteMapping
+    public ResponseEntity<?> deleteProfileImage(Authentication authentication) {
+        if (authentication.getPrincipal() instanceof User) {
+            User user = (User) authentication.getPrincipal();
 
+            // Delete the profile image for the authenticated user
+            String result = profileImageService.deleteProfileImage(user);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(result);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("User not authenticated.");
+    }
 
 
 }

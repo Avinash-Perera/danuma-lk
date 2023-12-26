@@ -20,8 +20,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-
-
     @ExceptionHandler(IncorrectCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<String> handleIncorrectCredentialsException(IncorrectCredentialsException ex) {
@@ -32,6 +30,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
+
+
+
 
     // Generic handler for other exceptions
     @ExceptionHandler(Exception.class)
