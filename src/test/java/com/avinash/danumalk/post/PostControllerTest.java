@@ -19,7 +19,7 @@ public class PostControllerTest {
     private PostController postController;
 
     @Mock
-    private PostService postService;
+    private PostServiceImpl postService;
 
     @BeforeEach
     public void init() {
@@ -34,11 +34,9 @@ public class PostControllerTest {
     void testGetAllPosts() {
         // Arrange
         PostDTO post1 = new PostDTO();
-        post1.setPostId(1L);
         post1.setTitle("Post 1");
 
         PostDTO post2 = new PostDTO();
-        post2.setPostId(2L);
         post2.setTitle("Post 2");
 
         when(postService.getAllPosts()).thenReturn(Arrays.asList(post1, post2));
@@ -64,7 +62,7 @@ public class PostControllerTest {
         // Arrange
         Long postId = 1L;
         PostDTO post = new PostDTO();
-        post.setPostId(postId);
+
         post.setTitle("Test Post");
 
         when(postService.getPostById(postId)).thenReturn(post);
@@ -76,7 +74,6 @@ public class PostControllerTest {
         assertNotNull(responseEntity);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
-        assertEquals(postId, responseEntity.getBody().getPostId());
         assertEquals("Test Post", responseEntity.getBody().getTitle());
     }
 

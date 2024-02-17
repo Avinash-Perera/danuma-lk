@@ -18,27 +18,12 @@ public class PostMapper {
     public PostDTO postToDTO(Post post) {
         if (post instanceof ImagePost) {
             return imagePostMapper.imagePostToDTO((ImagePost) post);
-        }
-         else if (post instanceof TextPost) {
-            return textPostMapper.textPostToDTO((TextPost) post);
         } else {
-            // Handle other post types if needed
-            return createErrorPostDTO();
+            return textPostMapper.textPostToDTO((TextPost) post);
 
         }
     }
 
-    /**
-     * Creates a new PostDTO object representing an error.
-     *
-     * @return          The newly created error PostDTO object.
-     */
-    private PostDTO createErrorPostDTO() {
-        PostDTO errorDTO = new PostDTO();
-        errorDTO.setError(true);
-        errorDTO.setErrorMessage("Unsupported post type");
-        return errorDTO;
-    }
 
     /**
      * Converts a PostDTO object to a Post object.
@@ -49,7 +34,6 @@ public class PostMapper {
 
     public Post dtoToPost(PostDTO postDTO) {
         Post post = new Post();
-        post.setPostId(postDTO.getPostId());
         post.setTitle(postDTO.getTitle());
         post.setPostType(postDTO.getPostType());
         post.setCreatedAt(postDTO.getCreatedAt());

@@ -1,7 +1,7 @@
 package com.avinash.danumalk.reaction;
 
 import com.avinash.danumalk.post.Post;
-import com.avinash.danumalk.post.PostService;
+import com.avinash.danumalk.post.PostServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ReactionController {
     private final ReactionServiceImpl reactionServiceImpl;
-    private final PostService postService;
+    private final PostServiceImpl postService;
 
 
     /**

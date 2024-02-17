@@ -13,22 +13,12 @@ public class ImagePostMapper {
         this.modelMapper = modelMapper;
     }
 
-    /**
-     * Converts an ImagePost object to an ImagePostDTO object.
-     *
-     * @param imagePost the ImagePost object to be converted
-     * @return the converted ImagePostDTO object
-     */
+
     public ImagePostDTO imagePostToDTO(ImagePost imagePost) {
         return modelMapper.map(imagePost, ImagePostDTO.class);
     }
 
-    /**
-     * Converts an ImagePostDTO object to an ImagePost object.
-     *
-     * @param imagePostDTO the ImagePostDTO object to be converted
-     * @return the converted ImagePost object
-     */
+
     public ImagePost dtoToImagePost(ImagePostDTO imagePostDTO) {
         return modelMapper.map(imagePostDTO, ImagePost.class);
     }

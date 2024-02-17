@@ -1,7 +1,11 @@
 package com.avinash.danumalk.post;
 
+import com.avinash.danumalk.auth.AuthenticationService;
+import com.avinash.danumalk.exceptions.UnauthorizedAccessException;
+import com.avinash.danumalk.exceptions.handleInvalidPostTypeException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -13,71 +17,53 @@ import org.springframework.web.bind.annotation.*;
 @Validated // Enable validation for this controller
 public class ImagePostController {
     private final ImagePostService imagePostService;
+    private final AuthenticationService authenticationService;
 
-
-    /**
-     * Creates an image post.
-     *
-     * @param  imagePostDTO  the image post DTO containing the details of the image post
-     * @return               the created image post DTO
-     */
     @PostMapping
-    public ImagePostDTO createImagePost(@RequestBody @Valid ImagePostDTO imagePostDTO) {
-        if (!imagePostDTO.getPostType().equals(PostType.IMAGE)) {
-            throw new IllegalArgumentException("Invalid post type for TextPost.");
+    public ResponseEntity<?> createImagePost(@RequestBody @Valid ImagePostDTO imagePostDTO) {
+        try {
+            var createdImagePostDTO = imagePostService.createImagePost(imagePostDTO);
+            return ResponseEntity.ok(createdImagePostDTO); // Return success response
+        } catch (IllegalArgumentException e) {
+            // Handle invalid post type exception
+            return ResponseEntity.badRequest().body(e.getMessage()); // Return bad request response with null body
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-        return imagePostService.createImagePost(imagePostDTO);
     }
 
-
-    /**
-     * Updates an ImagePost with the provided imagePostId and updatedImagePostDTO.
-     *
-     * @param imagePostId         the ID of the ImagePost to be updated
-     * @param updatedImagePostDTO the updated ImagePostDTO object containing new values
-     * @return ResponseEntity containing the updated ImagePostDTO object
-     */
     @PutMapping("/{imagePostId}")
-    public ResponseEntity<ImagePostDTO> updateImagePost(@PathVariable Long imagePostId, @RequestBody @Valid ImagePostDTO updatedImagePostDTO) {
-        ImagePostDTO existingImagePostDTO = imagePostService.getImagePostById(imagePostId);
-        if (existingImagePostDTO != null) {
-            // Check if the provided ID matches the post type
-            if (existingImagePostDTO.getPostType() != PostType.IMAGE) {
-                throw new IllegalArgumentException("Invalid post type for ImagePost.");
-            }
-            // Check if the PostType in the updated post matches the existing PostType
-            if (updatedImagePostDTO.getPostType() != PostType.IMAGE) {
-                throw new IllegalArgumentException("Cannot change the post type for ImagePost.");
-            }
-            // Update other properties of the existingImagePostDTO as needed
-            existingImagePostDTO.setTitle(updatedImagePostDTO.getTitle());
-            existingImagePostDTO.setImageUrl(updatedImagePostDTO.getImageUrl());
-            existingImagePostDTO.setImageDescription(updatedImagePostDTO.getImageDescription());
-
-            ImagePostDTO updatedPostDTO = imagePostService.updateImagePost(imagePostId, existingImagePostDTO);
+    public ResponseEntity<?> updateImagePost(@PathVariable Long imagePostId, @RequestBody @Valid ImagePostDTO updatedImagePostDTO) {
+        try {
+            var updatedPostDTO = imagePostService.updateImagePost(imagePostId, updatedImagePostDTO);
             return ResponseEntity.ok(updatedPostDTO);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch( handleInvalidPostTypeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        } catch (UnauthorizedAccessException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()); // Return unauthorized response with null body
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); // Return internal server error response with null body
         }
-        return ResponseEntity.notFound().build(); // ImagePost not found
     }
 
 
-
-    /**
-     * Deletes an image post by its ID.
-     *
-     * @param  imagePostId  the ID of the image post to be deleted
-     * @return              true if the image post was successfully deleted, false otherwise
-     */
     @DeleteMapping("/{imagePostId}")
-    public boolean deleteImagePost(@PathVariable Long imagePostId) {
-        ImagePostDTO existingImagePostDTO = imagePostService.getImagePostById(imagePostId);
-        if (existingImagePostDTO != null) {
-            // Check if the provided ID matches the post type
-            if (existingImagePostDTO.getPostType() != PostType.IMAGE) {
-                throw new IllegalArgumentException("Invalid post type for ImagePost.");
+    public ResponseEntity<?> deleteImagePost(@PathVariable Long imagePostId) {
+        // Attempt to delete the image post
+        try {
+            boolean deleted = imagePostService.deleteImagePost(imagePostId);
+            if (deleted) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.notFound().build();
             }
-            return imagePostService.deleteImagePost(imagePostId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (UnauthorizedAccessException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
-        return false; // ImagePost not found
     }
 }

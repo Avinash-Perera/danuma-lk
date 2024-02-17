@@ -1,6 +1,8 @@
 package com.avinash.danumalk.reaction;
 
 import com.avinash.danumalk.post.Post;
+import com.avinash.danumalk.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,5 +23,10 @@ public abstract class Reaction {
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties("reactions")  // Use this annotation to prevent infinite loop during JSON serialization
+    private User user;
 
 }

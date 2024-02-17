@@ -2,5 +2,10 @@ package com.avinash.danumalk.post;
 
 public enum PostType {
     TEXT,
-    IMAGE
+    IMAGE,
+
+    //May add in future
+    VIDEO,
+
+    AUDIO
 }

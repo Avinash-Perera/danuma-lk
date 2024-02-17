@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api/v1/posts")
 @CrossOrigin
 @AllArgsConstructor
 public class PostController {
-    private final PostService postService;
+    private final PostServiceImpl postService;
 
     /**
      * Returns a list of all posts.
@@ -26,12 +26,12 @@ public class PostController {
     /**
      * Retrieves a specific post by its ID.
      *
-     * @param  postId  the ID of the post to retrieve
-     * @return         the ResponseEntity containing the PostDTO if found, or a not found response if not found
+     * @param postId the ID of the post to retrieve
+     * @return the ResponseEntity containing the PostDTO if found, or a not found response if not found
      */
     @GetMapping("/{postId}")
     public ResponseEntity<PostDTO> getPostById(@PathVariable Long postId) {
-        PostDTO postDTO = postService.getPostById(postId);
+        var postDTO = postService.getPostById(postId);
 
         if (postDTO != null) {
             return ResponseEntity.ok(postDTO);

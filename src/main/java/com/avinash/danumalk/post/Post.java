@@ -2,11 +2,13 @@ package com.avinash.danumalk.post;
 
 import com.avinash.danumalk.comment.Comment;
 import com.avinash.danumalk.reaction.Reaction;
+import com.avinash.danumalk.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -18,6 +20,7 @@ import java.util.List;
 @Table(name = "post")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
@@ -45,6 +48,12 @@ public class Post {
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    // Add the ManyToOne relationship for the user
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties("posts")  // Use this annotation to prevent infinite loop during JSON serialization
+    private User user;
+
     // Define a one-to-many relationship with comments
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("post") // Use this annotation
@@ -54,5 +63,6 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("post")
     private List<Reaction> reactions;
+
 
 }

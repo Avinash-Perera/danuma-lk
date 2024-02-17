@@ -1,18 +1,21 @@
 package com.avinash.danumalk.post;
 
-import com.avinash.danumalk.post.PostType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.sql.Date;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostDTO {
+
     private Long postId;
 
     @NotEmpty(message = "Field cannot be empty")
@@ -25,10 +28,7 @@ public class PostDTO {
 
     private Date updatedAt;
 
+    @JsonIgnore
+    private Integer userId;
 
-    public void setError(boolean b) {
-    }
-
-    public void setErrorMessage(String errorMessage) {
-    }
 }

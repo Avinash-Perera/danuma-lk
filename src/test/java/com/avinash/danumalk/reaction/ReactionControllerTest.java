@@ -1,7 +1,7 @@
 package com.avinash.danumalk.reaction;
 
 import com.avinash.danumalk.post.Post;
-import com.avinash.danumalk.post.PostService;
+import com.avinash.danumalk.post.PostServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -20,7 +20,7 @@ public class ReactionControllerTest {
     private ReactionServiceImpl reactionService;
 
     @Mock
-    private PostService postService;
+    private PostServiceImpl postService;
 
     private ReactionController reactionController;
 

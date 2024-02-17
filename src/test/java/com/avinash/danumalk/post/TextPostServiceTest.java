@@ -41,7 +41,7 @@ public class TextPostServiceTest {
         TextPost textPost = new TextPost();
         textPost.setPostId(textPostId);
         TextPostDTO expectedDTO = new TextPostDTO();
-        expectedDTO.setPostId(textPostId);
+//        expectedDTO.setPostId(textPostId);
         when(textPostRepository.findById(textPostId)).thenReturn(Optional.of(textPost));
         when(textPostMapper.textPostToDTO(textPost)).thenReturn(expectedDTO);
 

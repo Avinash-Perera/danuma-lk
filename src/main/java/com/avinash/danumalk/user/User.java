@@ -1,7 +1,11 @@
 package com.avinash.danumalk.user;
 
+import com.avinash.danumalk.comment.Comment;
+import com.avinash.danumalk.post.Post;
 import com.avinash.danumalk.profileImage.ProfileImage;
+import com.avinash.danumalk.reaction.Reaction;
 import com.avinash.danumalk.token.Token;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,6 +44,21 @@ public class User implements UserDetails {
     @JoinColumn(name = "profile_image_id")
     @ToString.Exclude
     private ProfileImage profileImage;
+
+    // Add the OneToMany relationship for posts
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("user")  // Use this annotation to prevent infinite loop during JSON serialization
+    @ToString.Exclude
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("user")
+    @ToString.Exclude
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Reaction> reactions;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

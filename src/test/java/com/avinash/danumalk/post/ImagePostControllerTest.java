@@ -37,7 +37,7 @@ public class ImagePostControllerTest {
         when(imagePostService.createImagePost(imagePostDTO)).thenReturn(imagePostDTO);
 
         // Act
-        ImagePostDTO result = imagePostController.createImagePost(imagePostDTO);
+        ImagePostDTO result = (ImagePostDTO) imagePostController.createImagePost(imagePostDTO).getBody();
 
         // Assert
         assertNotNull(result);
@@ -78,7 +78,7 @@ public class ImagePostControllerTest {
         when(imagePostService.updateImagePost(imagePostId, updatedImagePostDTO)).thenReturn(updatedImagePostDTO);
 
         // Act
-        ResponseEntity<ImagePostDTO> imageDTO = imagePostController.updateImagePost(imagePostId, updatedImagePostDTO); // Change variable name to 'imageDTO'
+        ResponseEntity<ImagePostDTO> imageDTO = (ResponseEntity<ImagePostDTO>) imagePostController.updateImagePost(imagePostId, updatedImagePostDTO); // Change variable name to 'imageDTO'
 
         // Assert
         assertEquals(HttpStatus.OK, imageDTO.getStatusCode()); // Change 'responseEntity' to 'imageDTO'
@@ -140,7 +140,7 @@ public class ImagePostControllerTest {
         when(imagePostService.getImagePostById(imagePostId)).thenReturn(null);
 
         // Act
-        ResponseEntity<ImagePostDTO> responseEntity = imagePostController.updateImagePost(imagePostId, updatedImagePostDTO);
+        ResponseEntity<ImagePostDTO> responseEntity = (ResponseEntity<ImagePostDTO>) imagePostController.updateImagePost(imagePostId, updatedImagePostDTO);
 
         // Assert
         assertEquals(404, responseEntity.getStatusCodeValue()); // Check if HTTP status code is Not Found
@@ -162,7 +162,7 @@ public class ImagePostControllerTest {
         when(imagePostService.deleteImagePost(imagePostId)).thenReturn(true);
 
         // Act
-        boolean result = imagePostController.deleteImagePost(imagePostId);
+        boolean result = imagePostController.deleteImagePost(imagePostId).hasBody();
 
         // Assert
         assertTrue(result);
@@ -181,7 +181,7 @@ public class ImagePostControllerTest {
         when(imagePostService.getImagePostById(imagePostId)).thenReturn(null);
 
         // Act
-        boolean result = imagePostController.deleteImagePost(imagePostId);
+        boolean result = imagePostController.deleteImagePost(imagePostId).hasBody();
 
         // Assert
         assertFalse(result);
