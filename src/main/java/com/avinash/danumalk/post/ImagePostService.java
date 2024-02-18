@@ -1,9 +1,8 @@
 package com.avinash.danumalk.post;
 
-import com.avinash.danumalk.auth.AuthenticationService;
 import com.avinash.danumalk.exceptions.handleInvalidPostTypeException;
 import com.avinash.danumalk.exceptions.UnauthorizedAccessException;
-import com.avinash.danumalk.user.User;
+import com.avinash.danumalk.util.SecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,17 +11,16 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class ImagePostService {
+public class ImagePostService implements ImagePostServiceInterface {
     private final ImagePostRepository imagePostRepository;
     private final ImagePostMapper imagePostMapper; // Add the ImagePostMapper
-    private final AuthenticationService authenticationService;
-
-
+    private final SecurityUtils securityUtils;
+    @Override
     public List<ImagePostDTO> getAllImagePosts() {
         var imagePosts = imagePostRepository.findAll();
         return Collections.singletonList(imagePostMapper.imagePostToDTO((ImagePost) imagePosts)); // Use the mapper to convert to DTOs
     }
-
+    @Override
     public ImagePostDTO getImagePostById(Long imagePostId) {
         var imagePost = imagePostRepository.findById(imagePostId).orElse(null);
         if (imagePost != null) {
@@ -30,75 +28,47 @@ public class ImagePostService {
         }
         return null;
     }
-
+    @Override
     public ImagePostDTO createImagePost(ImagePostDTO imagePostDTO) {
-        // Check if the post type is valid
+
         if (!imagePostDTO.getPostType().equals(PostType.IMAGE)) {
             throw new IllegalArgumentException("Invalid post type for ImagePost.");
         }
-
-        // Get the authenticated user's ID
-        Integer userId = authenticationService.getAuthenticatedUserId();
-        // Set the user ID in the ImagePostDTO
-        imagePostDTO.setUserId(userId);
-
-        // Convert ImagePostDTO to ImagePost entity using builder pattern
-        var imagePost = ImagePost.builder()
-                .title(imagePostDTO.getTitle())
-                .postType(imagePostDTO.getPostType())
-                .user(User.builder().id(imagePostDTO.getUserId()).build())
-                .imageUrl(imagePostDTO.getImageUrl())
-                .imageDescription(imagePostDTO.getImageDescription())
-                .build();
-
-        // Save the image post
-        ImagePost savedImagePost = imagePostRepository.save(imagePost);
-
-        // Convert ImagePost entity back to ImagePostDTO
+        // setting authenticated users id
+        Integer ConnectedUserId = securityUtils.getAuthenticatedUserId();
+        System.out.println(ConnectedUserId);
+        imagePostDTO.setUserId(ConnectedUserId);
+        var imagePost = imagePostMapper.dtoToImagePost(imagePostDTO);
+        imagePost.getUser().setId(imagePostDTO.getUserId());
+        var savedImagePost = imagePostRepository.save(imagePost);
         return imagePostMapper.imagePostToDTO(savedImagePost);
     }
-
-
+    @Override
     public ImagePostDTO updateImagePost(Long imagePostId, ImagePostDTO updatedImagePostDTO) {
 
         if (updatedImagePostDTO.getPostType() != PostType.IMAGE) {
             throw new handleInvalidPostTypeException("Cannot change the post type for ImagePost.");
         }
-
-        // Retrieve the existing ImagePost from the repository
         var existingImagePost = imagePostRepository.findById(imagePostId).orElse(null);
-
-
-        // Check if the existing ImagePost exists
         if (existingImagePost == null) {
             throw new IllegalArgumentException("Image post not found.");
         }
-
-        // Retrieve the authenticated user ID
-        Integer authenticatedUserId = authenticationService.getAuthenticatedUserId();
+        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
 
         // Check if the authenticated user created the post
         if (!existingImagePost.getUser().getId().equals(authenticatedUserId)) {
             throw new UnauthorizedAccessException("Unauthorized to update this image post.");
         }
-
-        // Update properties of the existing ImagePost entity with the values from the updated ImagePost DTO
         existingImagePost.setTitle(updatedImagePostDTO.getTitle());
         existingImagePost.setImageUrl(updatedImagePostDTO.getImageUrl());
         existingImagePost.setImageDescription(updatedImagePostDTO.getImageDescription());
-
-        // Save the updated ImagePost entity
         var savedImagePost = imagePostRepository.save(existingImagePost);
         System.out.println(savedImagePost);
-
-        // Convert the updated ImagePost entity back to DTO and return
         return imagePostMapper.imagePostToDTO(savedImagePost);
     }
-
-
-
+    @Override
     public boolean deleteImagePost(Long imagePostId) {
-        Integer authenticatedUserId = authenticationService.getAuthenticatedUserId();
+        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
 
         // Check if the authenticated user created the post
         var existingImagePost = imagePostRepository.findById(imagePostId).orElse(null);

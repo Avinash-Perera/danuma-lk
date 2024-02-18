@@ -18,10 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +26,7 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class AuthenticationService implements AuthenticationServiceInterface {
     private final UserRepository repository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
@@ -43,6 +40,7 @@ public class AuthenticationService {
      * @param  request  the registration request containing the user details
      * @return          the authentication response containing the access token and refresh token
      */
+    @Override
     public AuthenticationResponse register(RegisterRequest request) {
         // Check if there is already an admin user
         if (request.getRole() == Role.ADMIN && repository.findByRole(Role.ADMIN).isPresent()) {
@@ -75,6 +73,7 @@ public class AuthenticationService {
      * @param  request  The authentication request containing the user's email and password.
      * @return          The authentication response containing the access token and refresh token.
      */
+    @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         try {
             authenticationManager.authenticate(
@@ -105,6 +104,7 @@ public class AuthenticationService {
      * @param  user      the user object
      * @param  jwtToken  the JWT token string
      */
+
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()
                 .user(user)
@@ -121,6 +121,7 @@ public class AuthenticationService {
      *
      * @param  user  the user for whom to revoke tokens
      */
+
     private void revokeAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
@@ -139,6 +140,7 @@ public class AuthenticationService {
      * @param  response  the HttpServletResponse object representing the outgoing response
      * @throws IOException  if an input or output exception occurs
      */
+    @Override
     public void refreshToken(
             HttpServletRequest request,
             HttpServletResponse response
@@ -167,16 +169,6 @@ public class AuthenticationService {
         }
     }
 
-    public Integer getAuthenticatedUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
 
-            // Assuming your User class has a getId() method
-            if (userDetails instanceof User) {
-                return ((User) userDetails).getId();
-            }
-        }
-        return null;
-    }
 }
 

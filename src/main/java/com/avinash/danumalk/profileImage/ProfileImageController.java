@@ -2,6 +2,7 @@ package com.avinash.danumalk.profileImage;
 
 import com.avinash.danumalk.user.User;
 import com.avinash.danumalk.user.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class ProfileImageController {
     private final ProfileImageService profileImageService;
     private final UserRepository userRepository;
+
 
 
     @PostMapping

@@ -19,7 +19,7 @@ public class PostControllerTest {
     private PostController postController;
 
     @Mock
-    private PostServiceImpl postService;
+    private PostService postService;
 
     @BeforeEach
     public void init() {

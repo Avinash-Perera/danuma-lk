@@ -11,7 +11,7 @@ import java.util.List;
 @CrossOrigin
 @AllArgsConstructor
 public class PostController {
-    private final PostServiceImpl postService;
+    private final PostService postService;
 
     /**
      * Returns a list of all posts.

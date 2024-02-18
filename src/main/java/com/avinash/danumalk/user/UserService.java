@@ -9,10 +9,12 @@ import java.security.Principal;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserServiceInterface {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
+
+    @Override
     public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
 
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();

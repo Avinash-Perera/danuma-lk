@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 public class PostServiceTest {
     @InjectMocks
-    private PostServiceImpl postService;
+    private PostService postService;
 
     @Mock
     private PostRepository postRepository;
@@ -34,7 +34,7 @@ public class PostServiceTest {
     /**
      * Test case for the getAllPosts method.
      *
-     * This method tests the functionality of the getAllPosts method in the PostServiceImpl class.
+     * This method tests the functionality of the getAllPosts method in the PostService class.
      *
      * @return         	The list of PostDTO objects representing all the posts.
      */
@@ -43,7 +43,7 @@ public class PostServiceTest {
         // Arrange
         PostRepository postRepository = mock(PostRepository.class);
         PostMapper postMapper = mock(PostMapper.class);
-        PostServiceImpl postService = new PostServiceImpl(postRepository, postMapper);
+        PostService postService = new PostService(postRepository, postMapper);
 
         List<Post> mockPosts = new ArrayList<>();
         mockPosts.add(new Post());

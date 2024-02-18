@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class PostServiceImpl implements PostServiceInterface {
+public class PostService implements PostServiceInterface {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
 

@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ProfileImageService {
+public class ProfileImageService implements ProfileImageServiceInterface {
 
 
     private final ProfileImageRepository repository;
@@ -22,6 +22,7 @@ public class ProfileImageService {
 
 
     @Transactional
+    @Override
     public String uploadImage(MultipartFile file, User user) {
         try {
             // Check if the user already has a profile image
@@ -46,6 +47,7 @@ public class ProfileImageService {
         }
     }
 
+    @Override
     public byte[] getProfileImage(User user) {
         try {
             // Retrieve the profile image for the authenticated user
@@ -67,6 +69,7 @@ public class ProfileImageService {
 
 
     @Transactional
+    @Override
     public String deleteProfileImage(User user) {
         try {
             // Retrieve the profile image for the authenticated user

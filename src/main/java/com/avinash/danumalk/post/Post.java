@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -20,7 +19,6 @@ import java.util.List;
 @Table(name = "post")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
