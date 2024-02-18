@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-//Profile image
+//Profile image 1.0
 
 @Entity
 @Table(name = "profile_img")
