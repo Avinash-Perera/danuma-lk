@@ -15,7 +15,13 @@ public class ImagePostMapper {
 
 
     public ImagePostDTO imagePostToDTO(ImagePost imagePost) {
-        return modelMapper.map(imagePost, ImagePostDTO.class);
+        ImagePostDTO imagePostDTO = modelMapper.map(imagePost, ImagePostDTO.class);
+        setImagePostCreatedBy(imagePost, imagePostDTO);
+        return imagePostDTO;
+    }
+
+    private void setImagePostCreatedBy(ImagePost imagePost, ImagePostDTO imagePostDTO) {
+        imagePostDTO.setPostCreatedBy(imagePost.getUser() != null ? imagePost.getUser().getUsername() : null);
     }
 
 
@@ -67,6 +73,7 @@ public class ImagePostMapper {
 //        imagePostDTO.setPostType(imagePost.getPostType());
 //        imagePostDTO.setCreatedAt(imagePost.getCreatedAt());
 //        imagePostDTO.setUpdatedAt(imagePost.getUpdatedAt());
+//
 //        return imagePostDTO;
 //    }
 //

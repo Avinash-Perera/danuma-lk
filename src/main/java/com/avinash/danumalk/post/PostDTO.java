@@ -1,5 +1,6 @@
 package com.avinash.danumalk.post;
 
+import com.avinash.danumalk.reactions.LikeReactionResponseDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,7 +28,16 @@ public class PostDTO {
 
     private Date updatedAt;
 
+    private String postCreatedBy;
+
     @JsonIgnore
     private Integer userId;
+
+    private List<LikeReactionResponseDTO> likes;
+
+    private int likeCount;  // Total count of likes
+
+    private boolean userLiked;
+
 
 }

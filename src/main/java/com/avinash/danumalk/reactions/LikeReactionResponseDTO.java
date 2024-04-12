@@ -1,4 +1,4 @@
-package com.avinash.danumalk.reaction;
+package com.avinash.danumalk.reactions;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReactionDTO {
-    private Long id;
-    private Long postId;
+public class LikeReactionResponseDTO {
+    private Long likeId;
+
+    private Integer userId;
+
+
 }

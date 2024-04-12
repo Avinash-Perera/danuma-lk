@@ -1,26 +1,35 @@
-package com.avinash.danumalk.comment;
+package com.avinash.danumalk.post;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDTO {
-    private Long commentId;
+public class PostRequestDTO {
+
     private Long postId;
-    private Long parentCommentId;
-    private String content;
+
+
+    private String title;
+
+    private PostType postType;
+
+
+
     private Date createdAt;
+
+
+
     private Date updatedAt;
-    private String postCreatedBy;
 
 
-    @JsonIgnore
-    private Integer userId;
+
 }

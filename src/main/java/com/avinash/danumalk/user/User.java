@@ -3,7 +3,7 @@ package com.avinash.danumalk.user;
 import com.avinash.danumalk.comment.Comment;
 import com.avinash.danumalk.post.Post;
 import com.avinash.danumalk.profileImage.ProfileImage;
-import com.avinash.danumalk.reaction.Reaction;
+import com.avinash.danumalk.reactions.LikeReaction;
 import com.avinash.danumalk.token.Token;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -12,7 +12,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -57,8 +59,9 @@ public class User implements UserDetails {
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Reaction> reactions;
-
+    @JsonIgnoreProperties("user")
+    @ToString.Exclude
+    private List<LikeReaction> likeReactions;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

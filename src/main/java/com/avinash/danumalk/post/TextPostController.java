@@ -1,7 +1,10 @@
 package com.avinash.danumalk.post;
 
+import com.avinash.danumalk.exceptions.UnauthorizedAccessException;
+import com.avinash.danumalk.exceptions.handleInvalidPostTypeException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,76 +17,54 @@ import org.springframework.web.bind.annotation.*;
 public class TextPostController {
     private final TextPostService textPostService;
 
-    /**
-     * Creates a new TextPostDTO by processing the given TextPostDTO object.
-     *
-     * @param  textPostDTO   the TextPostDTO object to be processed
-     * @return               the created TextPostDTO object
-     */
+
     @PostMapping
-    public TextPostDTO createTextPost(@RequestBody @Valid TextPostDTO textPostDTO) {
-        if (!textPostDTO.getPostType().equals(PostType.TEXT)) {
-            throw new IllegalArgumentException("Invalid post type for TextPost.");
+    public ResponseEntity<?> createTextPost(@RequestBody @Valid TextPostDTO textPostDTO) {
+        try {
+            var createdTextPostDTO = textPostService.createTextPost(textPostDTO);
+            return ResponseEntity.ok(createdTextPostDTO); // Return success response
+        } catch (IllegalArgumentException e) {
+            // Handle invalid post type exception
+            return ResponseEntity.badRequest().body(e.getMessage()); // Return bad request response with null body
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-        return textPostService.createTextPost(textPostDTO);
     }
 
 
-    /**
-     * Updates a TextPost by ID.
-     *
-     * @param textPostId         The ID of the TextPost to update.
-     * @param updatedTextPostDTO The updated TextPostDTO object.
-     * @return The updated TextPostDTO object.
-     * @throws IllegalArgumentException if the provided ID does not match the post type or if the post type is changed.
-     */
-    // Update TextPost by ID
     @PutMapping("/{textPostId}")
-    public ResponseEntity<TextPostDTO> updateTextPost(@PathVariable Long textPostId, @RequestBody @Valid TextPostDTO updatedTextPostDTO) {
-        TextPostDTO existingTextPostDTO = textPostService.getTextPostById(textPostId);
-        if (existingTextPostDTO != null) {
-            // Check if the provided ID matches the post type
-            if (existingTextPostDTO.getPostType() != PostType.TEXT) {
-                throw new IllegalArgumentException("Invalid post type for TextPost.");
-            }
-            // Check if the PostType in the updated post matches the existing PostType
-            if (updatedTextPostDTO.getPostType() != PostType.TEXT) {
-                throw new IllegalArgumentException("Cannot change the post type for TextPost.");
-            }
-            // Update other properties of the existingTextPostDTO as needed
-            existingTextPostDTO.setTitle(updatedTextPostDTO.getTitle());
-            existingTextPostDTO.setContent(updatedTextPostDTO.getContent());
+    public ResponseEntity<?> updateTextPost(@PathVariable Long textPostId, @RequestBody @Valid TextPostDTO updatedTextPostDTO) {
+        try {
+            var updatedTextDTO = textPostService.updateTextPost(textPostId, updatedTextPostDTO);
+            return ResponseEntity.ok(updatedTextDTO);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch( handleInvalidPostTypeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 
-            // Save the updated TextPostDTO
-            TextPostDTO updatedTextPost = textPostService.updateTextPost(textPostId, existingTextPostDTO);
-
-            // Return a ResponseEntity with the updated TextPostDTO and an OK status code
-            return ResponseEntity.ok(updatedTextPost);
+        } catch (UnauthorizedAccessException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()); // Return unauthorized response with null body
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); // Return internal server error response with null body
         }
-
-        // If TextPost is not found, return a ResponseEntity with a Not Found status code
-        return ResponseEntity.notFound().build();
     }
 
 
-    /**
-     * Delete a TextPost by ID.
-     *
-     * @param textPostId The ID of the TextPost to delete.
-     * @return true if the TextPost is successfully deleted, false otherwise.
-     */
-    // Delete TextPost by ID
+
     @DeleteMapping("/{textPostId}")
-    public boolean deleteTextPost(@PathVariable Long textPostId) {
-        TextPostDTO existingTextPostDTO = textPostService.getTextPostById(textPostId);
-        if (existingTextPostDTO != null) {
-            // Check if the provided ID matches the post type
-            if (existingTextPostDTO.getPostType() != PostType.TEXT) {
-                throw new IllegalArgumentException("Invalid post type for TextPost.");
+    public ResponseEntity<?> deleteTextPost(@PathVariable Long textPostId) {
+        try {
+            boolean deleted = textPostService.deleteTextPost(textPostId);
+            if (deleted) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.notFound().build();
             }
-            return textPostService.deleteTextPost(textPostId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (UnauthorizedAccessException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
-        return false; // TextPost not found
     }
 
 

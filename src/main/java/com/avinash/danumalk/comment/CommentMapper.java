@@ -1,4 +1,6 @@
 package com.avinash.danumalk.comment;
+import com.avinash.danumalk.post.ImagePost;
+import com.avinash.danumalk.post.ImagePostDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,7 +16,13 @@ public class CommentMapper {
     }
 
     public CommentDTO commentToDTO(Comment comment) {
-        return modelMapper.map(comment, CommentDTO.class);
+        CommentDTO commentToDTO = modelMapper.map(comment, CommentDTO.class);
+        setCommentCreatedBy(comment, commentToDTO);
+        return commentToDTO;
+    }
+
+    private void setCommentCreatedBy(Comment comment, CommentDTO commentToDTO) {
+        commentToDTO.setPostCreatedBy(comment.getUser() != null ? comment.getUser().getUsername() : null);
     }
 
     public Comment dtoToComment(CommentDTO commentDTO) {

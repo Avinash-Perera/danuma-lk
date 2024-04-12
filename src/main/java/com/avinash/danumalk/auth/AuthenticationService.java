@@ -34,12 +34,6 @@ public class AuthenticationService implements AuthenticationServiceInterface {
     private final AuthenticationManager authenticationManager;
 
 
-    /**
-     * Registers a new user based on the provided registration request.
-     *
-     * @param  request  the registration request containing the user details
-     * @return          the authentication response containing the access token and refresh token
-     */
     @Override
     public AuthenticationResponse register(RegisterRequest request) {
         // Check if there is already an admin user
@@ -67,12 +61,7 @@ public class AuthenticationService implements AuthenticationServiceInterface {
         }
     }
 
-    /**
-     * Authenticates the user based on the provided authentication request.
-     *
-     * @param  request  The authentication request containing the user's email and password.
-     * @return          The authentication response containing the access token and refresh token.
-     */
+
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         try {
@@ -98,12 +87,6 @@ public class AuthenticationService implements AuthenticationServiceInterface {
         }
     }
 
-    /**
-     * Saves the user token into the token repository.
-     *
-     * @param  user      the user object
-     * @param  jwtToken  the JWT token string
-     */
 
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()
@@ -116,11 +99,7 @@ public class AuthenticationService implements AuthenticationServiceInterface {
         tokenRepository.save(token);
     }
 
-    /**
-     * Revokes all tokens for a given user.
-     *
-     * @param  user  the user for whom to revoke tokens
-     */
+
 
     private void revokeAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
@@ -133,13 +112,7 @@ public class AuthenticationService implements AuthenticationServiceInterface {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    /**
-     * Refreshes the authentication token.
-     *
-     * @param  request   the HttpServletRequest object representing the incoming request
-     * @param  response  the HttpServletResponse object representing the outgoing response
-     * @throws IOException  if an input or output exception occurs
-     */
+
     @Override
     public void refreshToken(
             HttpServletRequest request,

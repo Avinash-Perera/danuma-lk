@@ -23,13 +23,7 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
 
-    /**
-     * Handles the POST request to register a new user.
-     *
-     * @param  request  the register request object containing user details
-     * @param  result   the binding result object for request validation
-     * @return          a response entity containing the result of the registration process
-     */
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult result) {
         if (result.hasErrors()) {
@@ -48,12 +42,7 @@ public class AuthenticationController {
         return errors;
     }
 
-    /**
-     * Authenticates a user by processing an authentication request.
-     *
-     * @param  request    the authentication request containing user credentials
-     * @return            the response entity containing the authentication response
-     */
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest request
@@ -61,14 +50,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.authenticate(request));
     }
 
-    /**
-     * Refreshes the token for the given request and response.
-     *
-     * @param  request   the HttpServletRequest object
-     * @param  response  the HttpServletResponse object
-     * @return           void
-     * @throws IOException if an I/O error occurs
-     */
+
     @PostMapping("/refresh-token")
     public void refreshToken(
             HttpServletRequest request,

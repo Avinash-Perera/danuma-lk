@@ -35,17 +35,16 @@ public class ImagePostService implements ImagePostServiceInterface {
             throw new IllegalArgumentException("Invalid post type for ImagePost.");
         }
         // setting authenticated users id
-        Integer ConnectedUserId = securityUtils.getAuthenticatedUserId();
-        System.out.println(ConnectedUserId);
-        imagePostDTO.setUserId(ConnectedUserId);
+        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
+        System.out.println(authenticatedUserId);
+        imagePostDTO.setUserId(authenticatedUserId);
         var imagePost = imagePostMapper.dtoToImagePost(imagePostDTO);
-        imagePost.getUser().setId(imagePostDTO.getUserId());
+        imagePost.getUser().setId(authenticatedUserId);
         var savedImagePost = imagePostRepository.save(imagePost);
         return imagePostMapper.imagePostToDTO(savedImagePost);
     }
     @Override
     public ImagePostDTO updateImagePost(Long imagePostId, ImagePostDTO updatedImagePostDTO) {
-
         if (updatedImagePostDTO.getPostType() != PostType.IMAGE) {
             throw new handleInvalidPostTypeException("Cannot change the post type for ImagePost.");
         }
@@ -54,22 +53,21 @@ public class ImagePostService implements ImagePostServiceInterface {
             throw new IllegalArgumentException("Image post not found.");
         }
         Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
-
         // Check if the authenticated user created the post
         if (!existingImagePost.getUser().getId().equals(authenticatedUserId)) {
             throw new UnauthorizedAccessException("Unauthorized to update this image post.");
         }
-        existingImagePost.setTitle(updatedImagePostDTO.getTitle());
-        existingImagePost.setImageUrl(updatedImagePostDTO.getImageUrl());
-        existingImagePost.setImageDescription(updatedImagePostDTO.getImageDescription());
-        var savedImagePost = imagePostRepository.save(existingImagePost);
-        System.out.println(savedImagePost);
+        updatedImagePostDTO.setUserId(authenticatedUserId);
+        var imagePost = imagePostMapper.dtoToImagePost(updatedImagePostDTO);
+        imagePost.setPostId(imagePostId);
+        imagePost.getUser().setId(authenticatedUserId);
+        var savedImagePost = imagePostRepository.save(imagePost);
         return imagePostMapper.imagePostToDTO(savedImagePost);
+
     }
     @Override
     public boolean deleteImagePost(Long imagePostId) {
         Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
-
         // Check if the authenticated user created the post
         var existingImagePost = imagePostRepository.findById(imagePostId).orElse(null);
         if (existingImagePost != null && existingImagePost.getUser().getId().equals(authenticatedUserId)) {

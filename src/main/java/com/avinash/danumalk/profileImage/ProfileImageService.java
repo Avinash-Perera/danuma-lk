@@ -54,12 +54,8 @@ public class ProfileImageService implements ProfileImageServiceInterface {
             Optional<ProfileImage> dbImageData = repository.findByUser(user);
 
             // Check if the user has a profile image
-            if (dbImageData.isPresent()) {
-                return ProfileImageUtils.decompressImage(dbImageData.get().getImageData());
-            } else {
-                // Handle the case where the user does not have a profile image
-                return new byte[0];
-            }
+            // Handle the case where the user does not have a profile image
+            return dbImageData.map(profileImage -> ProfileImageUtils.decompressImage(profileImage.getImageData())).orElseGet(() -> new byte[0]);
         } catch (Exception e) {
             // Handle the exception (e.g., log it or return an error message)
             return new byte[0];

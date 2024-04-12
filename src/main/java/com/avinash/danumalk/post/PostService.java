@@ -14,11 +14,7 @@ public class PostService implements PostServiceInterface {
     private final PostMapper postMapper;
 
 
-    /**
-     * Retrieves all posts, including subtypes, sorted by createdAt in descending order.
-     *
-     * @return a list of PostDTO objects representing the retrieved posts
-     */
+
     @Override
     public List<PostDTO> getAllPosts() {
         var posts = postRepository.findAllByOrderByCreatedAtDesc();
@@ -27,12 +23,7 @@ public class PostService implements PostServiceInterface {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Retrieves a PostDTO object by its ID.
-     *
-     * @param postId the ID of the post
-     * @return the PostDTO object representing the post, or null if the post does not exist
-     */
+
     @Override
     public PostDTO getPostById(Long postId) {
         var post = postRepository.findById(postId).orElse(null);
@@ -42,12 +33,7 @@ public class PostService implements PostServiceInterface {
         return null;
     }
 
-    /**
-     * Retrieves a post by its ID.
-     *
-     * @param postId the ID of the post to retrieve
-     * @return an Optional containing the post, or an empty Optional if no post was found
-     */
+
     @Override
     public Optional<Post> findById(Long postId) {
         return postRepository.findById(postId);
