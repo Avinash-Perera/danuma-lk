@@ -58,6 +58,12 @@ public class ReactionService implements ReactionServiceInterface{
 
     @Override
     public void removeLikeReaction(Long likeId) {
+        // Check if the like reaction exists
+        LikeReaction likeReaction = likeReactionRepository.findById(likeId)
+                .orElseThrow(() -> new RuntimeException("Like reaction not found for id: " + likeId));
+
+        // Delete the like reaction
+        likeReactionRepository.delete(likeReaction);
 
     }
 }
