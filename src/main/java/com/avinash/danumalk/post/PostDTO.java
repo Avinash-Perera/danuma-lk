@@ -37,7 +37,7 @@ public class PostDTO {
 
     private int likeCount;  // Total count of likes
 
-    private boolean userLiked;
+    private boolean likedByCurrentUser;
 
 
 }

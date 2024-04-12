@@ -1,6 +1,7 @@
 package com.avinash.danumalk.post;
 import com.avinash.danumalk.reactions.LikeReactionMapper;
 import com.avinash.danumalk.reactions.LikeReactionResponseDTO;
+import com.avinash.danumalk.reactions.ReactionService;
 import com.avinash.danumalk.reactions.ReactionTypeKey;
 import com.avinash.danumalk.util.SecurityUtils;
 import lombok.AllArgsConstructor;
@@ -15,11 +16,11 @@ public class PostMapper {
     private final ImagePostMapper imagePostMapper;
     private final TextPostMapper textPostMapper;
     private final LikeReactionMapper likeReactionMapper;
-    private final SecurityUtils securityUtils;
+    private final ReactionService reactionService;
 
 
 
-    public PostDTO postToDTO(Post post) {
+    public PostDTO postToDTO(Post post, Integer authenticatedUserId) {
         PostDTO postDTO;
         if (post instanceof ImagePost) {
             postDTO = imagePostMapper.imagePostToDTO((ImagePost) post);
@@ -35,12 +36,10 @@ public class PostMapper {
         postDTO.setLikes(likeDTOs);
       // Set likeCount based on the number of likes
         postDTO.setLikeCount(post.getLikeReactions().size());
-        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
-        // Check if the specified userId has liked this post
-        boolean userHasLiked = post.getLikeReactions().stream()
-                .anyMatch(like -> like.getUser().getId().equals(authenticatedUserId) && like.getReactionType().getKey().equals(ReactionTypeKey.LIKE.getKey()));
 
-        postDTO.setUserLiked(userHasLiked);
+        // Check if the current user has liked this post
+        boolean likedByCurrentUser = reactionService.hasUserLikedPost(authenticatedUserId, post.getPostId());
+        postDTO.setLikedByCurrentUser(likedByCurrentUser);
 
         return postDTO;
     }

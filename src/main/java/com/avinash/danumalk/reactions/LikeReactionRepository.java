@@ -5,5 +5,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LikeReactionRepository extends JpaRepository<LikeReaction, Long> {
-    // Define custom methods if needed
+
+    boolean existsByUser_IdAndPost_PostId(Integer userId, Long postId);
+
 }

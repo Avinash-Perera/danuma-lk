@@ -1,5 +1,6 @@
 package com.avinash.danumalk.post;
 
+import com.avinash.danumalk.util.SecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 public class PostService implements PostServiceInterface {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
+    private final SecurityUtils securityUtils;
 
 
 
@@ -19,16 +21,18 @@ public class PostService implements PostServiceInterface {
     public List<PostDTO> getAllPosts() {
         var posts = postRepository.findAllByOrderByCreatedAtDesc();
         return posts.stream()
-                .map(postMapper::postToDTO) // Convert each Post to PostDTO using the mapper
+                .map(post -> postMapper.postToDTO(post, securityUtils.getAuthenticatedUserId())) // Pass both Post and authenticatedUserId
                 .collect(Collectors.toList());
     }
 
 
     @Override
     public PostDTO getPostById(Long postId) {
+        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
         var post = postRepository.findById(postId).orElse(null);
+
         if (post != null) {
-            return postMapper.postToDTO(post); // Convert Post to PostDTO using the mapper
+            return postMapper.postToDTO(post, securityUtils.getAuthenticatedUserId()); // Convert Post to PostDTO using the mapper
         }
         return null;
     }

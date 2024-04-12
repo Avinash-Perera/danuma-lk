@@ -26,17 +26,20 @@ public class ReactionService implements ReactionServiceInterface{
         var post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("ReactionType not found for key: " + key));
 
-        var reactionTypeId = reactionType.getReactionTypeId();
+        // Check if the user has already liked this post
+        boolean hasLiked = likeReactionRepository.existsByUser_IdAndPost_PostId(securityUtils.getAuthenticatedUserId(), postId);
+        if (hasLiked) {
+            throw new RuntimeException("User has already liked this post");
+        }
 
         // setting authenticated users id
-        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
         LikeReaction likeReaction = new LikeReaction();
         likeReaction.setReactionType(reactionType);
         likeReaction.setPost(post);
 
         // Set the authenticated user's id on the LikeReaction's User
         User user = new User();
-        user.setId(authenticatedUserId);
+        user.setId(securityUtils.getAuthenticatedUserId());
         likeReaction.setUser(user);
 
         var savedLikeReaction = likeReactionRepository.save(likeReaction);
@@ -46,6 +49,11 @@ public class ReactionService implements ReactionServiceInterface{
 
 
 
+    }
+
+    @Override
+    public boolean hasUserLikedPost(Integer userId, Long postId) {
+        return likeReactionRepository.existsByUser_IdAndPost_PostId(userId, postId);
     }
 
     @Override
