@@ -2,12 +2,15 @@ package com.avinash.danumalk.post;
 
 import com.avinash.danumalk.exceptions.handleInvalidPostTypeException;
 import com.avinash.danumalk.exceptions.UnauthorizedAccessException;
+import com.avinash.danumalk.file.FileUtils;
 import com.avinash.danumalk.util.SecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -15,6 +18,7 @@ public class ImagePostService implements ImagePostServiceInterface {
     private final ImagePostRepository imagePostRepository;
     private final ImagePostMapper imagePostMapper; // Add the ImagePostMapper
     private final SecurityUtils securityUtils;
+
     @Override
     public List<ImagePostDTO> getAllImagePosts() {
         var imagePosts = imagePostRepository.findAll();
@@ -39,10 +43,16 @@ public class ImagePostService implements ImagePostServiceInterface {
         System.out.println(authenticatedUserId);
         imagePostDTO.setUserId(authenticatedUserId);
         var imagePost = imagePostMapper.dtoToImagePost(imagePostDTO);
+
         imagePost.getUser().setId(authenticatedUserId);
+
         var savedImagePost = imagePostRepository.save(imagePost);
+
         return imagePostMapper.imagePostToDTO(savedImagePost);
     }
+
+
+
     @Override
     public ImagePostDTO updateImagePost(Long imagePostId, ImagePostDTO updatedImagePostDTO) {
         if (updatedImagePostDTO.getPostType() != PostType.IMAGE) {
@@ -61,6 +71,19 @@ public class ImagePostService implements ImagePostServiceInterface {
         var imagePost = imagePostMapper.dtoToImagePost(updatedImagePostDTO);
         imagePost.setPostId(imagePostId);
         imagePost.getUser().setId(authenticatedUserId);
+
+//        // Extract file names from the URLs in the database and the DTO
+//        List<String> dbFileNames = imagePost.getImageUrls().stream()
+//                .map(FileUtils::extractFileName)
+//                .toList();
+//
+//        List<String> dtoFileNames = updatedImagePostDTO.getImageUrls().stream()
+//                .map(FileUtils::extractFileName) // assuming FileUploadResponse has a method to get fileName
+//                .toList();
+//
+//        System.out.println(dtoFileNames);
+
+
         var savedImagePost = imagePostRepository.save(imagePost);
         return imagePostMapper.imagePostToDTO(savedImagePost);
 

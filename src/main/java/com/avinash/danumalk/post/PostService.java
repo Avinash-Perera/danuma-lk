@@ -1,7 +1,12 @@
 package com.avinash.danumalk.post;
 
+import com.avinash.danumalk.common.PageResponse;
 import com.avinash.danumalk.util.SecurityUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,11 +23,22 @@ public class PostService implements PostServiceInterface {
 
 
     @Override
-    public List<PostDTO> getAllPosts() {
-        var posts = postRepository.findAllByOrderByCreatedAtDesc();
-        return posts.stream()
-                .map(post -> postMapper.postToDTO(post, securityUtils.getAuthenticatedUserId())) // Pass both Post and authenticatedUserId
+    public PageResponse<PostDTO> getAllPostsPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Post> postPage = postRepository.findAll(pageable);
+        List<PostDTO> postDTOs = postPage.stream()
+                .map(post -> postMapper.postToDTO(post, securityUtils.getAuthenticatedUserId()))
                 .collect(Collectors.toList());
+
+        return new PageResponse<>(
+                postDTOs,
+                postPage.getNumber(),
+                postPage.getSize(),
+                postPage.getTotalElements(),
+                postPage.getTotalPages(),
+                postPage.isFirst(),
+                postPage.isLast()
+        );
     }
 
 

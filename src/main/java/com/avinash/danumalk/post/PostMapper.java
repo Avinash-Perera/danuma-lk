@@ -46,14 +46,14 @@ public class PostMapper {
 
 
 
-
-    public Post dtoToPost(PostDTO postDTO) {
-        Post post = new Post();
-        post.setTitle(postDTO.getTitle());
-        post.setPostType(postDTO.getPostType());
-        post.setCreatedAt(postDTO.getCreatedAt());
-        post.setUpdatedAt(postDTO.getUpdatedAt());
-        return post;
-    }
+//
+//    public Post dtoToPost(PostDTO postDTO) {
+//        Post post = new Post();
+//        post.setTitle(postDTO.getTitle());
+//        post.setPostType(postDTO.getPostType());
+//        post.setCreatedAt(postDTO.getCreatedAt());
+//        post.setUpdatedAt(postDTO.getUpdatedAt());
+//        return post;
+//    }
 
 }

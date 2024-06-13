@@ -1,11 +1,9 @@
 package com.avinash.danumalk.user;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -23,6 +21,18 @@ public class UserController {
     ) {
         service.changePassword(request, connectedUser);
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/disable_user")
+    public ResponseEntity<String> disableUser(@RequestBody UserStatusChangeRequest disableUserRequest) {
+        service.disableUser(disableUserRequest);
+        return ResponseEntity.ok("User disabled successfully");
+    }
+
+    @PatchMapping("/enable_user")
+    public ResponseEntity<String> enableUser(@RequestBody UserStatusChangeRequest enableUserRequest) throws MessagingException {
+        service.enableUser(enableUserRequest);
+        return ResponseEntity.ok("User Activation Email sent");
     }
 
 

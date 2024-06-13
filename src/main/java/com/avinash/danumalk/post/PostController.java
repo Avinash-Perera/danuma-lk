@@ -1,5 +1,6 @@
 package com.avinash.danumalk.post;
 
+import com.avinash.danumalk.common.PageResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +14,13 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
-   
-    @GetMapping
-    public List<PostDTO> getAllPosts() {
-        return postService.getAllPosts();
+
+    @GetMapping("/posts")
+    public PageResponse<PostDTO> getAllPostsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return postService.getAllPostsPaginated(page, size);
     }
 
 

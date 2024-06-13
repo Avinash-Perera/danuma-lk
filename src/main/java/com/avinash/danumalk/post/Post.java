@@ -12,6 +12,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,11 +43,11 @@ public class Post {
 
     @CreationTimestamp
     @Column(name = "created_at")
-    private Date createdAt;
+    private Timestamp createdAt; // Use Timestamp
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private Timestamp updatedAt; // Use Timestamp
 
     // Add the ManyToOne relationship for the user
     @ManyToOne(fetch = FetchType.LAZY)

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 @AllArgsConstructor
 @Validated // Enable validation for this controller
+
 public class ImagePostController {
     private final ImagePostService imagePostService;
     private final AuthenticationService authenticationService;

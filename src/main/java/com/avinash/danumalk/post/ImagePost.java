@@ -1,12 +1,11 @@
 package com.avinash.danumalk.post;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -16,8 +15,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ImagePost extends Post {
 
-    @Column(name = "image_data")
-    private String imageUrl;
+    @ElementCollection
+    @CollectionTable(name = "image_post_urls", joinColumns = @JoinColumn(name = "post_id"))
+    @Column(name = "image_url")
+    private List<String> imageUrls;
 
     @Column(name = "image_description", length = 1000) // Image description field
     private String imageDescription;

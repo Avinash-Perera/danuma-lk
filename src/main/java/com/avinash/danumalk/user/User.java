@@ -4,6 +4,7 @@ import com.avinash.danumalk.comment.Comment;
 import com.avinash.danumalk.post.Post;
 import com.avinash.danumalk.profileImage.ProfileImage;
 import com.avinash.danumalk.reactions.LikeReaction;
+import com.avinash.danumalk.role.Role;
 import com.avinash.danumalk.token.Token;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -35,8 +37,18 @@ public class User implements UserDetails {
 
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @ToString.Exclude
+    private List<Role> roles;
+
+    private boolean accountLocked;
+
+    private boolean enabled;
 
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
@@ -65,7 +77,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getAuthorities();
+        return roles.stream()
+                .flatMap(role -> role.getAuthorities().stream())
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -85,7 +99,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !accountLocked;
     }
 
     @Override
@@ -93,9 +107,10 @@ public class User implements UserDetails {
         return true;
     }
 
+
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }
 
