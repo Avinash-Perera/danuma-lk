@@ -8,6 +8,7 @@ import com.avinash.danumalk.token.Token;
 import com.avinash.danumalk.token.TokenRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserServiceInterface {
@@ -27,8 +29,11 @@ public class UserService implements UserServiceInterface {
     private final AuthenticationService authenticationService;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
+    private final UserMapper userMapper;
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl ;
+    private final ImageHelper imageHelper;
+
 
     @Override
     public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
@@ -108,6 +113,40 @@ public class UserService implements UserServiceInterface {
         }
 
         return codeBuilder.toString();
+    }
+
+    @Override
+    public UserResponse updateUserProfile(Integer id, UserRequest updateRequest) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+        String currentProfileImageUrl = user.getProfile_image_url();
+        String requestProfileImageUrl = updateRequest.profile_image_url();
+
+        log.info("Updating profile for user with id: {}", id);
+
+        // Handle the case where the profile image URL has been updated
+        if (requestProfileImageUrl != null && !requestProfileImageUrl.isEmpty()) {
+            if (currentProfileImageUrl != null && !currentProfileImageUrl.isEmpty() && !currentProfileImageUrl.equals(requestProfileImageUrl)) {
+                log.info("Deleting old profile image: {}", currentProfileImageUrl);
+                imageHelper.deleteImageFromUserDirectory(currentProfileImageUrl, user.getId());
+            }
+
+            if (imageHelper.isImageInTempDirectory(requestProfileImageUrl)) {
+                log.info("Moving new profile image from temp directory: {}", requestProfileImageUrl);
+                imageHelper.moveProfileImageToUserFolder(requestProfileImageUrl, user.getId());
+            } else if (imageHelper.isImageInUserDirectory(requestProfileImageUrl, user.getId())) {
+                log.info("Profile image already in user's directory: {}", requestProfileImageUrl);
+            } else {
+                log.error("Profile image not found in temp or user directory: {}", requestProfileImageUrl);
+                throw new IllegalStateException("Profile image not found in temp or user directory");
+            }
+        }
+
+        user = userMapper.updateUserFromRequest(updateRequest, user);
+        repository.save(user);
+        log.info("Profile updated successfully for user with id: {}", id);
+        return userMapper.toUserResponse(user);
     }
 
 

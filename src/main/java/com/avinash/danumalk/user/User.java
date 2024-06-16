@@ -46,6 +46,9 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<Role> roles;
 
+
+    private String profile_image_url;
+
     private boolean accountLocked;
 
     private boolean enabled;
@@ -53,6 +56,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
     private List<Token> tokens;
+
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JoinColumn(name = "profile_image_id")

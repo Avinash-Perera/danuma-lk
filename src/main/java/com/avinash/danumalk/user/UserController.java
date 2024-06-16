@@ -35,5 +35,10 @@ public class UserController {
         return ResponseEntity.ok("User Activation Email sent");
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUserProfile(@PathVariable Integer id, @RequestBody UserRequest updateRequest) {
+        UserResponse response = service.updateUserProfile(id, updateRequest);
+        return ResponseEntity.ok(response);
+    }
 
 }
