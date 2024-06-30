@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -21,10 +22,13 @@ public class ImageHelper {
     @Value("${application.file.uploads.temp-file-path}")
     private String tempUploadBasePath;
 
+    @Value("${application.file.uploads.user-path}")
+    private String userUploadBasePath;
+
     @Value("${application.env.urls.app-url}")
     private String fileAccessBaseUrl; // Base URL for accessing files
 
-    public String moveProfileImageToUserFolder(String imageName, Integer userId) {
+    public String moveProfileImageToUserFolder(String imageName, UUID userId) {
         String tempFilePath = Paths.get(fileUploadBasePath, tempUploadBasePath, imageName).toString();
         File tempFile = new File(tempFilePath);
 
@@ -33,7 +37,7 @@ public class ImageHelper {
             return null;
         }
 
-        String userFolderPath = Paths.get(fileUploadBasePath, "users", userId.toString()).toString();
+        String userFolderPath = Paths.get(fileUploadBasePath, userUploadBasePath , userId.toString()).toString();
         File userFolder = new File(userFolderPath);
 
         if (!userFolder.exists()) {
@@ -61,14 +65,14 @@ public class ImageHelper {
         return tempFile.exists();
     }
 
-    public boolean isImageInUserDirectory(String imageName, Integer userId) {
-        String userFilePath = Paths.get(fileUploadBasePath, "users", userId.toString(), imageName).toString();
+    public boolean isImageInUserDirectory(String imageName, UUID userId) {
+        String userFilePath = Paths.get(fileUploadBasePath, userUploadBasePath, userId.toString(), imageName).toString();
         File userFile = new File(userFilePath);
         return userFile.exists();
     }
 
-    public void deleteImageFromUserDirectory(String imageName, Integer userId) {
-        String userFilePath = Paths.get(fileUploadBasePath, "users", userId.toString(), imageName).toString();
+    public void deleteImageFromUserDirectory(String imageName, UUID userId) {
+        String userFilePath = Paths.get(fileUploadBasePath, userUploadBasePath, userId.toString(), imageName).toString();
         File userFile = new File(userFilePath);
         if (userFile.exists()) {
             if (userFile.delete()) {
@@ -81,11 +85,11 @@ public class ImageHelper {
         }
     }
 
-    public String getImagePath(String imageName) {
-        return Paths.get(fileUploadBasePath, imageName).toString();
+    public String getImagePath(String imageName, Integer userId) {
+        return Paths.get(userUploadBasePath, userId.toString(), imageName).toString();
     }
 
-    public String getImageUrl(String imageName) {
-        return fileAccessBaseUrl + getImagePath(imageName) ;
+    public String getImageUrl(String imageName, UUID userId) {
+        return fileAccessBaseUrl + "/uploads/users/" + userId + "/" + imageName;
     }
 }

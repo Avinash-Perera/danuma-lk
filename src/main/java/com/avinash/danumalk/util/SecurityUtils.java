@@ -6,10 +6,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class SecurityUtils {
     // Helper method to get the authenticated user's ID
-    public Integer getAuthenticatedUserId() {
+    public UUID getAuthenticatedUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
 

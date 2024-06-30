@@ -3,16 +3,17 @@ package com.avinash.danumalk.auth;
 import com.avinash.danumalk.config.JwtService;
 import com.avinash.danumalk.email.EmailService;
 import com.avinash.danumalk.email.EmailTemplateName;
+import com.avinash.danumalk.exceptions.DuplicateAdminException;
 import com.avinash.danumalk.exceptions.DuplicateEmailException;
 import com.avinash.danumalk.exceptions.IncorrectCredentialsException;
-import com.avinash.danumalk.exceptions.OnlyOneAdminAllowedException;
+import com.avinash.danumalk.exceptions.UserNotFoundException;
 import com.avinash.danumalk.role.RoleRepository;
 import com.avinash.danumalk.token.Token;
 import com.avinash.danumalk.token.TokenRepository;
 import com.avinash.danumalk.token.TokenType;
-import com.avinash.danumalk.role.Role;
 import com.avinash.danumalk.user.User;
 import com.avinash.danumalk.user.UserRepository;
+import com.avinash.danumalk.util.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,11 +31,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +44,7 @@ public class AuthenticationService implements AuthenticationServiceInterface {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final RoleRepository roleRepository;
+    private final UserUtils userUtils;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl ;
@@ -55,13 +54,16 @@ public class AuthenticationService implements AuthenticationServiceInterface {
 
     @Override
     public AuthenticationResponse registerAdmin(RegisterRequest request) {
-        // Check if there is already an admin user
-//        if (request.getRoles() == Role.ADMIN && repository.findByRole(Role.ADMIN).isPresent()) {
-//            throw new OnlyOneAdminAllowedException("Only one admin user is allowed.");
-//        }
+
         var userRole = roleRepository.findByName("ADMIN")
                 // todo - better exception handling
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
+
+        // Check if an admin user already exists
+        var existingAdmin = repository.findByRoles_Name("ADMIN");
+        if (existingAdmin.isPresent()) {
+            throw new DuplicateAdminException("An admin user already exists.");
+        }
         try {
             var user = User.builder()
                     .usersName(request.getUsersName())
@@ -87,10 +89,6 @@ public class AuthenticationService implements AuthenticationServiceInterface {
 
     @Override
     public boolean register(RegisterRequest request) throws MessagingException {
-        // Check if there is already an admin user
-//        if (request.getRole() == Role.ADMIN && repository.findByRole(Role.ADMIN).isPresent()) {
-//            throw new OnlyOneAdminAllowedException("Only one admin user is allowed.");
-//        }
         var userRole = roleRepository.findByName("USER")
                 // todo - better exception handling
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
@@ -104,68 +102,29 @@ public class AuthenticationService implements AuthenticationServiceInterface {
                     .roles(List.of(userRole))
                     .build();
             var savedUser = repository.save(user);
-            sendValidationEmail(savedUser);
+            String newToken = userUtils.generateAndSaveActivationToken(savedUser);
+            userUtils.sendValidationEmail(savedUser, newToken);
             return true;
         } catch (DataIntegrityViolationException e) {
             // Handle the case where the email is already taken
             throw new DuplicateEmailException("Email is already taken");
         } catch (MessagingException e) {
-            throw new RuntimeException("Error sending validation email", e);
+            // Re-throw MessagingException to be handled by the caller
+            throw e;
+        } catch (Exception e) {
+            // Handle any other exceptions
+            throw new RuntimeException("An unexpected error occurred during registration", e);
         }
     }
 
-    private void sendValidationEmail(User user) throws MessagingException {
-        var newToken = generateAndSaveActivationToken(user);
-        System.out.println(Optional.of(newToken));
-
-        emailService.sendEmail(
-                user.getEmail(),
-                user.getUsersName(),
-                EmailTemplateName.ACTIVATE_ACCOUNT,
-                activationUrl,
-                newToken,
-                "Account activation"
-        );
-    }
-
-    private String generateAndSaveActivationToken(User user) {
-        // Generate a token
-        String generatedToken = generateActivationCode(6);
-        System.out.println(generatedToken);
-        var token = Token.builder()
-                .token(generatedToken)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(15))
-                .user(user)
-                .build();
-        tokenRepository.save(token);
-        System.out.println(token);
-
-
-        return generatedToken;
-    }
-
-    private String generateActivationCode(int length) {
-        String characters = "0123456789";
-        StringBuilder codeBuilder = new StringBuilder();
-
-        SecureRandom secureRandom = new SecureRandom();
-
-        for (int i = 0; i < length; i++) {
-            int randomIndex = secureRandom.nextInt(characters.length());
-            codeBuilder.append(characters.charAt(randomIndex));
-        }
-
-        return codeBuilder.toString();
-    }
-
+    @Override
     @Transactional
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
                 // todo exception has to be defined
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
-            sendValidationEmail(savedToken.getUser());
+            userUtils.sendValidationEmail(savedToken.getUser(), userUtils.generateAndSaveActivationToken(savedToken.getUser()));
             throw new RuntimeException("Activation token has expired. A new token has been send to the same email address");
         }
 
@@ -176,6 +135,20 @@ public class AuthenticationService implements AuthenticationServiceInterface {
 
         savedToken.setValidatedAt(LocalDateTime.now());
         tokenRepository.save(savedToken);
+    }
+
+
+    @Override
+    public void resendActivationCode(String email) throws MessagingException {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+
+        if (user.isEnabled()) {
+            throw new IllegalStateException("User is already enabled");
+        }
+
+        String newToken = userUtils.generateAndSaveActivationToken(user);
+        userUtils.sendValidationEmail(user, newToken);
     }
 
     @Override
@@ -263,7 +236,7 @@ public class AuthenticationService implements AuthenticationServiceInterface {
         User user = repository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        String resetToken = generateAndSaveActivationToken(user);
+        String resetToken = userUtils.generateAndSaveActivationToken(user);
 
         emailService.sendPasswordResetEmail(
                 user.getEmail(),

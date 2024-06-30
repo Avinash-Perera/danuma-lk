@@ -105,4 +105,26 @@ public class EmailService {
 
         mailSender.send(mimeMessage);
     }
+
+    @Async
+    public void sendAccountDeletionEmail(String to, String username, String subject) throws MessagingException {
+        String templateName = "account_deletion_email";
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MULTIPART_MODE_MIXED, UTF_8.name());
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("username", username);
+
+        Context context = new Context();
+        context.setVariables(properties);
+
+        helper.setFrom("contact@danumalk.com");
+        helper.setTo(to);
+        helper.setSubject(subject);
+
+        String template = templateEngine.process(templateName, context);
+        helper.setText(template, true);
+
+        mailSender.send(mimeMessage);
+    }
 }

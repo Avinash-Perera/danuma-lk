@@ -47,6 +47,7 @@ application:
     uploads:
       base-path: uploads/
       temp-file-path: temp/
+      user-path: users/
 
   env:
     urls:

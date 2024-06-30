@@ -5,7 +5,6 @@ import com.avinash.danumalk.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -19,7 +18,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import javax.lang.model.util.Elements;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -44,7 +42,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public AuditorAware<Integer> auditorAware() {
+    public ApplicationAuditAware auditorAware() {
         return new ApplicationAuditAware();
     }
 

@@ -52,7 +52,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
-                                .requestMatchers("/api/posts/image/**").hasAnyRole(ADMIN.name())
+//                                .requestMatchers("/api/posts/image/**").hasAnyRole(ADMIN.name())
                                 .anyRequest()
                                 .authenticated()
                 )

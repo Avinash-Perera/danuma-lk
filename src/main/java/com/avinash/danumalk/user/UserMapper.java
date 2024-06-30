@@ -24,7 +24,7 @@ public class UserMapper {
     public UserResponse toUserResponse(User user) {
         FileUploadResponse profileImageResponse = null;
         if (user.getProfile_image_url() != null) {
-            String imageUrl = imageHelper.getImageUrl(user.getProfile_image_url());
+            String imageUrl = imageHelper.getImageUrl(user.getProfile_image_url(), user.getId());
             profileImageResponse = new FileUploadResponse(user.getProfile_image_url(), imageUrl);
         }
 

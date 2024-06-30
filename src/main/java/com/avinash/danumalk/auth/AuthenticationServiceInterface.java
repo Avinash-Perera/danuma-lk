@@ -11,6 +11,10 @@ public interface AuthenticationServiceInterface {
 
     boolean register(RegisterRequest request) throws MessagingException;
 
+    void resendActivationCode(String email) throws MessagingException;
+
+    void activateAccount(String token) throws MessagingException;
+
     AuthenticationResponse authenticate(AuthenticationRequest request);
 
     void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;

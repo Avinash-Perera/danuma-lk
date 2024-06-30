@@ -1,5 +1,6 @@
 package com.avinash.danumalk.auth;
 
+import com.avinash.danumalk.user.UserStatusChangeRequest;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -7,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -85,5 +87,11 @@ public class AuthenticationController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/resend-activation")
+    public ResponseEntity<String> resendActivationCode(@RequestBody UserStatusChangeRequest request) throws MessagingException {
+        service.resendActivationCode(request.email());
+        return ResponseEntity.ok("Activation code resent successfully");
     }
 }
