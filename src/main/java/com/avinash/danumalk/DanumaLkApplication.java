@@ -40,14 +40,14 @@ public class DanumaLkApplication {
 		return args -> {
 			initializeRoles(roleRepository);
 
-//
-//			var admin = RegisterRequest.builder()
-//					.usersName("DanumaLK")
-//					.email("DanumaLK")
-//					.password("password")
-//					.build();
-//
-//			System.out.println("Admin token: " + service.registerAdmin(admin).getAccessToken());
+
+			var admin = RegisterRequest.builder()
+					.usersName("DanumaLK")
+					.email("DanumaLK")
+					.password("password")
+					.build();
+
+			System.out.println("Admin token: " + service.registerAdmin(admin).getAccessToken());
 
 
 

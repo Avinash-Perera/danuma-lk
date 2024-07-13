@@ -8,13 +8,15 @@ spring:
       auto-commit: false
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:
         format_sql:true
       database: postgresql
       database-platform: org.hibernate.dialect.PostgreSQLDialect
+  multipart:
+    max-file-size: 50MB
 
   mail:
       host: localhost
@@ -48,10 +50,12 @@ application:
       base-path: uploads/
       temp-file-path: temp/
       user-path: users/
+      posts: posts/
+
 
   env:
     urls:
-      app-url: http://localhost:8080/
+      app-url: http://localhost:8080
 
 
 

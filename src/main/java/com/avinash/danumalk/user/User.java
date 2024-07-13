@@ -1,8 +1,10 @@
 package com.avinash.danumalk.user;
 
+import com.avinash.danumalk.posts.ImagePost;
 import com.avinash.danumalk.profileImage.ProfileImage;
 import com.avinash.danumalk.role.Role;
 import com.avinash.danumalk.token.Token;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -79,11 +81,14 @@ public class User implements UserDetails {
     @ToString.Exclude
     private ProfileImage profileImage;
 
-//    // Add the OneToMany relationship for posts
+    @OneToMany(mappedBy = "owner")
+    private List<ImagePost> imagePosts;
+
+    // Add the OneToMany relationship for posts
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 //    @JsonIgnoreProperties("user")  // Use this annotation to prevent infinite loop during JSON serialization
 //    @ToString.Exclude
-//    private List<Post> posts;
+//    private List<ImagePost> imagePosts;
 //
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 //    @JsonIgnoreProperties("user")
