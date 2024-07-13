@@ -1,27 +1,56 @@
+#services:
+#  db:
+#    ports:
+#      - 5432:5432
+#    container_name: postgresql_container
+#    image: postgres
+#    environment:
+#      - POSTGRES_DB=danuma-lk
+#      - POSTGRES_PASSWORD=MyNewPass
+#      - POSTGRES_USER=postgres
+#    volumes:
+#      - C:\postgres_datapart:/var/lib/postgresql/data
+#    restart: always
+#
+#  backend:
+#    build: .
+#    container_name: danuma-lk_container
+#    ports:
+#      - 8080:8080
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/danuma-lk
+#      - SPRING_DATASOURCE_USERNAME=postgres
+#      - SPRING_DATASOURCE_PASSWORD=MyNewPass
+#    depends_on:
+#      - db
+#    restart: always
+
 services:
-  db:
-    ports:
-      - 5432:5432
-    container_name: postgresql_container
+  postgres:
+    container_name: postgres-sql-danumalk
     image: postgres
     environment:
-      - POSTGRES_DB=danuma-lk
-      - POSTGRES_PASSWORD=MyNewPass
-      - POSTGRES_USER=postgres
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: danuma-lk-dev-db
     volumes:
-      - C:\postgres_datapart:/var/lib/postgresql/data
-    restart: always
-
-  backend:
-    build: .
-    container_name: danuma-lk_container
+      - postgres:/data/postgres
     ports:
-      - 8080:8080
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/danuma-lk
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=MyNewPass
-    depends_on:
-      - db
-    restart: always
+      - 5432:5432
+    networks:
+      - spring-demo
+    restart: unless-stopped
+  mail-dev:
+    container_name: mail-dev-danuma
+    image: maildev/maildev
+    ports:
+      - 1080:1080
+      - 1025:1025
+networks:
+  spring-demo:
+    driver: bridge
 
+volumes:
+  postgres:
+    driver: local

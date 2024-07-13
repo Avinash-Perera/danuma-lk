@@ -1,6 +1,7 @@
 package com.avinash.danumalk.comment;
 
 import com.avinash.danumalk.post.Post;
+import com.avinash.danumalk.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -46,6 +47,11 @@ public class Comment {
     @Column(name = "updated_at")
     @UpdateTimestamp
     private Date updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties("comments")  // Use this annotation to prevent infinite loop during JSON serialization
+    private User user;
 
 
 }

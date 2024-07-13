@@ -1,6 +1,7 @@
 package com.avinash.danumalk.post;
 
-import com.avinash.danumalk.post.PostType;
+import com.avinash.danumalk.reactions.LikeReactionResponseDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -8,11 +9,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostDTO {
+
     private Long postId;
 
     @NotEmpty(message = "Field cannot be empty")
@@ -25,10 +28,16 @@ public class PostDTO {
 
     private Date updatedAt;
 
+    private String postCreatedBy;
 
-    public void setError(boolean b) {
-    }
+    @JsonIgnore
+    private Integer userId;
 
-    public void setErrorMessage(String errorMessage) {
-    }
+    private List<LikeReactionResponseDTO> likes;
+
+    private int likeCount;  // Total count of likes
+
+    private boolean likedByCurrentUser;
+
+
 }

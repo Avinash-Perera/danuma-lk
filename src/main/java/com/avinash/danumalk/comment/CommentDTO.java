@@ -1,5 +1,6 @@
 package com.avinash.danumalk.comment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,12 @@ public class CommentDTO {
     private Long commentId;
     private Long postId;
     private Long parentCommentId;
-    private List<Long> replyCommentIds;
     private String content;
     private Date createdAt;
     private Date updatedAt;
+    private String postCreatedBy;
+
+
+    @JsonIgnore
+    private Integer userId;
 }

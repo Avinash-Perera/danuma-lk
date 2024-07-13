@@ -1,5 +1,8 @@
 package com.avinash.danumalk.post;
 
+import com.avinash.danumalk.exceptions.UnauthorizedAccessException;
+import com.avinash.danumalk.exceptions.handleInvalidPostTypeException;
+import com.avinash.danumalk.util.SecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -8,26 +11,18 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class TextPostService {
+public class TextPostService implements TextPostServiceInterface {
     private final TextPostRepository textPostRepository;
     private final TextPostMapper textPostMapper; // Add the TextPostMapper
+    private final SecurityUtils securityUtils;
 
-    /**
-     * Retrieves all the text posts.
-     *
-     * @return  a list of text post DTOs
-     */
+    @Override
     public List<TextPostDTO> getAllTextPosts() {
         List<TextPost> textPosts = textPostRepository.findAll();
         return Collections.singletonList(textPostMapper.textPostToDTO((TextPost) textPosts)); // Use the mapper to convert to DTOs
     }
 
-    /**
-     * Retrieves a TextPostDTO object by its ID.
-     *
-     * @param  textPostId    the ID of the TextPost to retrieve
-     * @return               the corresponding TextPostDTO object, or null if not found
-     */
+    @Override
     public TextPostDTO getTextPostById(Long textPostId) {
         TextPost textPost = textPostRepository.findById(textPostId).orElse(null);
         if (textPost != null) {
@@ -36,47 +31,63 @@ public class TextPostService {
         return null;
     }
 
-    /**
-     * Creates a new text post.
-     *
-     * @param  textPostDTO  the text post object containing the post data
-     * @return              the created text post object
-     */
+    @Override
     public TextPostDTO createTextPost(TextPostDTO textPostDTO) {
-        TextPost textPost = textPostMapper.dtoToTextPost(textPostDTO); // Use the mapper to convert to an entity
-        TextPost savedTextPost = textPostRepository.save(textPost);
-        return textPostMapper.textPostToDTO(savedTextPost); // Use the mapper to convert back to DTO
-    }
 
-    /**
-     * Updates a text post with the given ID.
-     *
-     * @param  textPostId            the ID of the text post to be updated
-     * @param  updatedTextPostDTO    the updated text post data transfer object
-     * @return                       the updated text post data transfer object if the text post exists,
-     *                               null otherwise
-     */
-    public TextPostDTO updateTextPost(Long textPostId, TextPostDTO updatedTextPostDTO) {
-        if (textPostRepository.existsById(textPostId)) {
-            TextPost textPost = textPostMapper.dtoToTextPost(updatedTextPostDTO); // Use the mapper to convert to an entity
-            textPost.setPostId(textPostId);
-            TextPost savedTextPost = textPostRepository.save(textPost);
-            return textPostMapper.textPostToDTO(savedTextPost); // Use the mapper to convert back to DTO
+        if (!textPostDTO.getPostType().equals(PostType.TEXT)) {
+            throw new IllegalArgumentException("Invalid post type for TEXT.");
         }
-        return null; // TextPost not found
+        // setting authenticated users id
+        Integer ConnectedUserId = securityUtils.getAuthenticatedUserId();
+        System.out.println(ConnectedUserId);
+        textPostDTO.setUserId(ConnectedUserId);
+        var textPost = textPostMapper.dtoToTextPost(textPostDTO);
+        textPost.getUser().setId(textPostDTO.getUserId());
+        var savedTextPost = textPostRepository.save(textPost);
+        return textPostMapper.textPostToDTO(savedTextPost);
     }
 
-    /**
-     * Deletes a text post with the given ID.
-     *
-     * @param  textPostId  the ID of the text post to be deleted
-     * @return             true if the post is successfully deleted, false otherwise
-     */
+    @Override
+    public TextPostDTO updateTextPost(Long textPostId, TextPostDTO updatedTextPostDTO) {
+
+        if (updatedTextPostDTO.getPostType() != PostType.TEXT) {
+            throw new handleInvalidPostTypeException("Cannot change the post type for TEXT.");
+        }
+        var existingTextPost = textPostRepository.findById(textPostId).orElse(null);
+        if (existingTextPost == null) {
+            throw new IllegalArgumentException("TEXT post not found.");
+        }
+        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
+
+        // Check if the authenticated user created the post
+        if (!existingTextPost.getUser().getId().equals(authenticatedUserId)) {
+            throw new UnauthorizedAccessException("Unauthorized to update this TEXT post.");
+        }
+        existingTextPost.setTitle(updatedTextPostDTO.getTitle());
+        existingTextPost.setContent(updatedTextPostDTO.getContent());
+        var savedTextPost = textPostRepository.save(existingTextPost);
+        System.out.println(savedTextPost);
+        return textPostMapper.textPostToDTO(savedTextPost);
+    }
+
+
+
     public boolean deleteTextPost(Long textPostId) {
-        if (textPostRepository.existsById(textPostId)) {
+        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
+
+        // Check if the authenticated user created the post
+        var existingTextPost = textPostRepository.findById(textPostId).orElse(null);
+        if (existingTextPost != null && existingTextPost.getUser().getId().equals(authenticatedUserId)) {
+            // Check if the provided ID matches the post type
+            if (existingTextPost.getPostType() != PostType.TEXT) {
+                throw new IllegalArgumentException("Invalid post type for TEXT.");
+            }
+
             textPostRepository.deleteById(textPostId);
             return true;
+        }else {
+            throw new UnauthorizedAccessException("Unauthorized to delete this image post or post not found.");
         }
-        return false; // TextPost not found
+
     }
 }

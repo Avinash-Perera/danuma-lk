@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
+//Profile image 1.0
 
 @Entity
 @Table(name = "profile_img")
@@ -23,15 +23,12 @@ public class ProfileImage {
 
     private String name;
     private String type;
-
     @Lob
-    @Basic(fetch = FetchType.EAGER)
-    @Column(name = "imagedata", length = 1000)
+    @Column(name = "imagedata",length = 1000)
     private byte[] imageData;
 
-
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id",unique = true)
     private User user;
 
 }

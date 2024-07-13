@@ -1,29 +1,37 @@
 package com.avinash.danumalk.user;
 
+import com.avinash.danumalk.posts.ImagePost;
 import com.avinash.danumalk.profileImage.ProfileImage;
+import com.avinash.danumalk.role.Role;
 import com.avinash.danumalk.token.Token;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "_user")
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
     private String usersName;
 
 
@@ -32,18 +40,71 @@ public class User implements UserDetails {
 
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Column(insertable = false)
+    private LocalDateTime lastModifiedDate;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @ToString.Exclude
+    private List<Role> roles;
+
+//    @CreatedDate
+//    @Column(nullable = false, updatable = false)
+//    private LocalDateTime createdDate;
+//
+//    @LastModifiedDate
+//    @Column(insertable = false)
+//    private LocalDateTime lastModifiedDate;
+
+    private String profile_image_url;
+
+    private boolean accountLocked;
+
+    private boolean enabled;
 
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
     private List<Token> tokens;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JoinColumn(name = "profile_image_id")
+    @ToString.Exclude
     private ProfileImage profileImage;
+
+    @OneToMany(mappedBy = "owner")
+    private List<ImagePost> imagePosts;
+
+    // Add the OneToMany relationship for posts
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    @JsonIgnoreProperties("user")  // Use this annotation to prevent infinite loop during JSON serialization
+//    @ToString.Exclude
+//    private List<ImagePost> imagePosts;
+//
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    @JsonIgnoreProperties("user")
+//    @ToString.Exclude
+//    private List<Comment> comments;
+//
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    @JsonIgnoreProperties("user")
+//    @ToString.Exclude
+//    private List<LikeReaction> likeReactions;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role.getAuthorities();
+        return roles.stream()
+                .flatMap(role -> role.getAuthorities().stream())
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -63,7 +124,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !accountLocked;
     }
 
     @Override
@@ -71,9 +132,10 @@ public class User implements UserDetails {
         return true;
     }
 
+
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }
 

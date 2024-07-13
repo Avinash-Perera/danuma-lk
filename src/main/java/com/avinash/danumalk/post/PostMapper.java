@@ -1,60 +1,59 @@
 package com.avinash.danumalk.post;
+import com.avinash.danumalk.reactions.LikeReactionMapper;
+import com.avinash.danumalk.reactions.LikeReactionResponseDTO;
+import com.avinash.danumalk.reactions.ReactionService;
+import com.avinash.danumalk.reactions.ReactionTypeKey;
+import com.avinash.danumalk.util.SecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
 public class PostMapper {
     private final ImagePostMapper imagePostMapper;
     private final TextPostMapper textPostMapper;
+    private final LikeReactionMapper likeReactionMapper;
+    private final ReactionService reactionService;
 
 
-    /**
-     * Converts a Post object to a PostDTO object.
-     *
-     * @param  post   the Post object to convert
-     * @return        the converted PostDTO object
-     */
-    public PostDTO postToDTO(Post post) {
+
+    public PostDTO postToDTO(Post post, Integer authenticatedUserId) {
+        PostDTO postDTO;
         if (post instanceof ImagePost) {
-            return imagePostMapper.imagePostToDTO((ImagePost) post);
-        }
-         else if (post instanceof TextPost) {
-            return textPostMapper.textPostToDTO((TextPost) post);
+            postDTO = imagePostMapper.imagePostToDTO((ImagePost) post);
         } else {
-            // Handle other post types if needed
-            return createErrorPostDTO();
-
+            postDTO = textPostMapper.textPostToDTO((TextPost) post);
         }
+
+        // Map the list of LikeReactions to LikeReactionResponseDTO
+        List<LikeReactionResponseDTO> likeDTOs = post.getLikeReactions().stream()
+                .map(likeReactionMapper::mapToDTO)
+                .collect(Collectors.toList());
+
+        postDTO.setLikes(likeDTOs);
+      // Set likeCount based on the number of likes
+        postDTO.setLikeCount(post.getLikeReactions().size());
+
+        // Check if the current user has liked this post
+        boolean likedByCurrentUser = reactionService.hasUserLikedPost(authenticatedUserId, post.getPostId());
+        postDTO.setLikedByCurrentUser(likedByCurrentUser);
+
+        return postDTO;
     }
 
-    /**
-     * Creates a new PostDTO object representing an error.
-     *
-     * @return          The newly created error PostDTO object.
-     */
-    private PostDTO createErrorPostDTO() {
-        PostDTO errorDTO = new PostDTO();
-        errorDTO.setError(true);
-        errorDTO.setErrorMessage("Unsupported post type");
-        return errorDTO;
-    }
 
-    /**
-     * Converts a PostDTO object to a Post object.
-     *
-     * @param  postDTO   the PostDTO object to be converted
-     * @return           the converted Post object
-     */
 
-    public Post dtoToPost(PostDTO postDTO) {
-        Post post = new Post();
-        post.setPostId(postDTO.getPostId());
-        post.setTitle(postDTO.getTitle());
-        post.setPostType(postDTO.getPostType());
-        post.setCreatedAt(postDTO.getCreatedAt());
-        post.setUpdatedAt(postDTO.getUpdatedAt());
-        return post;
-    }
+//
+//    public Post dtoToPost(PostDTO postDTO) {
+//        Post post = new Post();
+//        post.setTitle(postDTO.getTitle());
+//        post.setPostType(postDTO.getPostType());
+//        post.setCreatedAt(postDTO.getCreatedAt());
+//        post.setUpdatedAt(postDTO.getUpdatedAt());
+//        return post;
+//    }
 
 }

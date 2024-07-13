@@ -1,7 +1,8 @@
 package com.avinash.danumalk.post;
 
 import com.avinash.danumalk.comment.Comment;
-import com.avinash.danumalk.reaction.Reaction;
+import com.avinash.danumalk.reactions.LikeReaction;
+import com.avinash.danumalk.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,8 +12,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "post")
@@ -39,20 +43,28 @@ public class Post {
 
     @CreationTimestamp
     @Column(name = "created_at")
-    private Date createdAt;
+    private Timestamp createdAt; // Use Timestamp
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private Timestamp updatedAt; // Use Timestamp
+
+    // Add the ManyToOne relationship for the user
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties("posts")  // Use this annotation to prevent infinite loop during JSON serialization
+    private User user;
 
     // Define a one-to-many relationship with comments
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("post") // Use this annotation
     private List<Comment> comments = new ArrayList<>();
 
-    // Define a one-to-many relationship with reactions
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("post")
-    private List<Reaction> reactions;
+    @JsonIgnoreProperties("post") // Use this annotation
+    private List<LikeReaction> likeReactions;
+
+
+
 
 }

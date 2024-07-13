@@ -1,16 +1,17 @@
 package com.avinash.danumalk.auth;
 
+import com.avinash.danumalk.user.UserStatusChangeRequest;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,15 +24,9 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
 
-    /**
-     * Handles the POST request to register a new user.
-     *
-     * @param  request  the register request object containing user details
-     * @param  result   the binding result object for request validation
-     * @return          a response entity containing the result of the registration process
-     */
+
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult result) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult result) throws MessagingException {
         if (result.hasErrors()) {
             // Validation failed, return validation errors to the client
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildValidationErrors(result));
@@ -48,12 +43,7 @@ public class AuthenticationController {
         return errors;
     }
 
-    /**
-     * Authenticates a user by processing an authentication request.
-     *
-     * @param  request    the authentication request containing user credentials
-     * @return            the response entity containing the authentication response
-     */
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest request
@@ -61,14 +51,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.authenticate(request));
     }
 
-    /**
-     * Refreshes the token for the given request and response.
-     *
-     * @param  request   the HttpServletRequest object
-     * @param  response  the HttpServletResponse object
-     * @return           void
-     * @throws IOException if an I/O error occurs
-     */
+
     @PostMapping("/refresh-token")
     public void refreshToken(
             HttpServletRequest request,
@@ -77,5 +60,38 @@ public class AuthenticationController {
         service.refreshToken(request, response);
     }
 
+    @GetMapping("/activate-account")
+    public void confirm(
+            @RequestParam String token
+    ) throws MessagingException {
+        service.activateAccount(token);
+    }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        try {
+            service.sendPasswordResetEmail(email);
+            return ResponseEntity.ok("Password reset email sent");
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        } catch (MessagingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+        try {
+            service.resetPassword(token, newPassword);
+            return ResponseEntity.ok("Password has been reset");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/resend-activation")
+    public ResponseEntity<String> resendActivationCode(@RequestBody UserStatusChangeRequest request) throws MessagingException {
+        service.resendActivationCode(request.email());
+        return ResponseEntity.ok("Activation code resent successfully");
+    }
 }

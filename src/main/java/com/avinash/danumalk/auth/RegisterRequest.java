@@ -1,7 +1,7 @@
 package com.avinash.danumalk.auth;
 
-import com.avinash.danumalk.user.Role;
-import jakarta.persistence.Lob;
+import com.avinash.danumalk.role.Role;
+import com.avinash.danumalk.role.RoleName;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,8 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Set;
 
 @Data
 @Builder
@@ -30,8 +30,8 @@ public class RegisterRequest {
     @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
-    @NotNull(message = "role is required")
-    private Role role;
+//    @NotNull(message = "role is required")
+//    private Set<RoleName> roles;
 
 
 }

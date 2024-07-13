@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/danuma-lk-dev
     username: postgres
-    password: MyNewPass
+    password: 1234
     driver-classname: org.postgresql.Driver
     hikari:
       auto-commit: false
@@ -15,6 +15,24 @@ spring:
         format_sql:true
       database: postgresql
       database-platform: org.hibernate.dialect.PostgreSQLDialect
+  multipart:
+    max-file-size: 50MB
+
+  mail:
+      host: localhost
+      port: 1025
+      username: ali
+      password: ali
+      properties:
+        mail:
+          smtp:
+            trust: "*"
+          auth: true
+          starttls:
+            enabled: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
 
 application:
   security:
@@ -23,3 +41,21 @@ application:
       expiration: 86400000 # a day
       refresh-token:
         expiration: 604800000 # 7 days
+  mailing:
+    frontend:
+      activation-url: http://localhost:4200/activate-account
+      forgot-password-url: http://localhost:4200/reset-password
+  file:
+    uploads:
+      base-path: uploads/
+      temp-file-path: temp/
+      user-path: users/
+      posts: posts/
+
+
+  env:
+    urls:
+      app-url: http://localhost:8080
+
+
+

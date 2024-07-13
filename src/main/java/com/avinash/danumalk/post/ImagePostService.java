@@ -1,84 +1,110 @@
 package com.avinash.danumalk.post;
 
+import com.avinash.danumalk.exceptions.handleInvalidPostTypeException;
+import com.avinash.danumalk.exceptions.UnauthorizedAccessException;
+import com.avinash.danumalk.file.FileUtils;
+import com.avinash.danumalk.util.SecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ImagePostService {
+public class ImagePostService implements ImagePostServiceInterface {
     private final ImagePostRepository imagePostRepository;
     private final ImagePostMapper imagePostMapper; // Add the ImagePostMapper
+    private final SecurityUtils securityUtils;
 
-    /**
-     * Retrieves all the image posts from the repository and converts them into a list of ImagePostDTO objects.
-     *
-     * @return         	A list of ImagePostDTO objects containing the image posts.
-     */
+    @Override
     public List<ImagePostDTO> getAllImagePosts() {
-        List<ImagePost> imagePosts = imagePostRepository.findAll();
+        var imagePosts = imagePostRepository.findAll();
         return Collections.singletonList(imagePostMapper.imagePostToDTO((ImagePost) imagePosts)); // Use the mapper to convert to DTOs
     }
-
-    /**
-     * Retrieves the ImagePostDTO object corresponding to the given imagePostId.
-     *
-     * @param  imagePostId  the ID of the image post to retrieve
-     * @return              the ImagePostDTO object corresponding to the imagePostId,
-     *                      or null if the image post does not exist
-     */
+    @Override
     public ImagePostDTO getImagePostById(Long imagePostId) {
-        ImagePost imagePost = imagePostRepository.findById(imagePostId).orElse(null);
+        var imagePost = imagePostRepository.findById(imagePostId).orElse(null);
         if (imagePost != null) {
             return imagePostMapper.imagePostToDTO(imagePost); // Use the mapper to convert to DTO
         }
         return null;
     }
-
-    /**
-     * Creates a new image post using the provided image post DTO.
-     *
-     * @param  imagePostDTO  the image post DTO to be created
-     * @return               the created image post DTO
-     */
+    @Override
     public ImagePostDTO createImagePost(ImagePostDTO imagePostDTO) {
-        ImagePost imagePost = imagePostMapper.dtoToImagePost(imagePostDTO); // Use the mapper to convert to an entity
-        ImagePost savedImagePost = imagePostRepository.save(imagePost);
-        return imagePostMapper.imagePostToDTO(savedImagePost); // Use the mapper to convert back to DTO
-    }
 
-    /**
-     * Updates an image post with the given ID.
-     *
-     * @param  imagePostId           the ID of the image post to update
-     * @param  updatedImagePostDTO   the updated image post DTO
-     * @return                       the updated image post DTO
-     */
-    public ImagePostDTO updateImagePost(Long imagePostId, ImagePostDTO updatedImagePostDTO) {
-        if (imagePostRepository.existsById(imagePostId)) {
-            ImagePost imagePost = imagePostMapper.dtoToImagePost(updatedImagePostDTO); // Use the mapper to convert to an entity
-            imagePost.setPostId(imagePostId);
-            ImagePost savedImagePost = imagePostRepository.save(imagePost);
-            return imagePostMapper.imagePostToDTO(savedImagePost); // Use the mapper to convert back to DTO
+        if (!imagePostDTO.getPostType().equals(PostType.IMAGE)) {
+            throw new IllegalArgumentException("Invalid post type for ImagePost.");
         }
-        return null; // ImagePost not found
+        // setting authenticated users id
+        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
+        System.out.println(authenticatedUserId);
+        imagePostDTO.setUserId(authenticatedUserId);
+        var imagePost = imagePostMapper.dtoToImagePost(imagePostDTO);
+
+        imagePost.getUser().setId(authenticatedUserId);
+
+        var savedImagePost = imagePostRepository.save(imagePost);
+
+        return imagePostMapper.imagePostToDTO(savedImagePost);
     }
 
-    /**
-     * Deletes an image post with the specified ID.
-     *
-     * @param  imagePostId  the ID of the image post to delete
-     * @return              true if the image post was deleted successfully, false otherwise
-     */
+
+
+    @Override
+    public ImagePostDTO updateImagePost(Long imagePostId, ImagePostDTO updatedImagePostDTO) {
+        if (updatedImagePostDTO.getPostType() != PostType.IMAGE) {
+            throw new handleInvalidPostTypeException("Cannot change the post type for ImagePost.");
+        }
+        var existingImagePost = imagePostRepository.findById(imagePostId).orElse(null);
+        if (existingImagePost == null) {
+            throw new IllegalArgumentException("Image post not found.");
+        }
+        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
+        // Check if the authenticated user created the post
+        if (!existingImagePost.getUser().getId().equals(authenticatedUserId)) {
+            throw new UnauthorizedAccessException("Unauthorized to update this image post.");
+        }
+        updatedImagePostDTO.setUserId(authenticatedUserId);
+        var imagePost = imagePostMapper.dtoToImagePost(updatedImagePostDTO);
+        imagePost.setPostId(imagePostId);
+        imagePost.getUser().setId(authenticatedUserId);
+
+//        // Extract file names from the URLs in the database and the DTO
+//        List<String> dbFileNames = imagePost.getImageUrls().stream()
+//                .map(FileUtils::extractFileName)
+//                .toList();
+//
+//        List<String> dtoFileNames = updatedImagePostDTO.getImageUrls().stream()
+//                .map(FileUtils::extractFileName) // assuming FileUploadResponse has a method to get fileName
+//                .toList();
+//
+//        System.out.println(dtoFileNames);
+
+
+        var savedImagePost = imagePostRepository.save(imagePost);
+        return imagePostMapper.imagePostToDTO(savedImagePost);
+
+    }
+    @Override
     public boolean deleteImagePost(Long imagePostId) {
-        if (imagePostRepository.existsById(imagePostId)) {
+        Integer authenticatedUserId = securityUtils.getAuthenticatedUserId();
+        // Check if the authenticated user created the post
+        var existingImagePost = imagePostRepository.findById(imagePostId).orElse(null);
+        if (existingImagePost != null && existingImagePost.getUser().getId().equals(authenticatedUserId)) {
+            // Check if the provided ID matches the post type
+            if (existingImagePost.getPostType() != PostType.IMAGE) {
+                throw new IllegalArgumentException("Invalid post type for ImagePost.");
+            }
+
             imagePostRepository.deleteById(imagePostId);
             return true;
-        }
-        return false; // ImagePost not found
-    }
+        }else {
+                throw new UnauthorizedAccessException("Unauthorized to delete this image post or post not found.");
+            }
 
+    }
 
 }
