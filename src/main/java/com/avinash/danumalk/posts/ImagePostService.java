@@ -1,6 +1,7 @@
 package com.avinash.danumalk.posts;
 
 import com.avinash.danumalk.common.ResultResponse;
+import com.avinash.danumalk.exceptions.UnauthorizedAccessException;
 import com.avinash.danumalk.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -135,7 +136,20 @@ public class ImagePostService implements InterfaceImagePostService {
     }
 
     @Override
-    public void delete(UUID id) {
+    public boolean delete(UUID id) {
+        ImagePost existingPost = imagePostRepository.findById(id).orElseThrow(() -> new IllegalStateException("Post not found!"));
+        if (existingPost != null && existingPost.getOwner().getId().equals(securityUtils.getAuthenticatedUserId())) {
+
+            //Delete the imageurl's from storage for the respective post which is deleted
+            List<String> existingImageUrls = existingPost.getImageUrls();
+            for(String imageUrl : existingImageUrls){
+                imagePostHelper.deleteImageFromPostDirectory(imageUrl, existingPost.getId());
+            }
+            imagePostRepository.deleteById(id);
+            return true;
+        }else {
+            throw new UnauthorizedAccessException("Unauthorized to delete");
+        }
 
     }
 

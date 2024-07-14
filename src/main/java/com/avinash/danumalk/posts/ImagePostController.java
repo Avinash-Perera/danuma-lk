@@ -44,5 +44,20 @@ public class ImagePostController {
         }
     }
 
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTextPost(@PathVariable UUID id) {
+        try {
+            boolean deleted = imagePostService.delete(id);
+            if (deleted) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        }catch (UnauthorizedAccessException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
+
 }
 
