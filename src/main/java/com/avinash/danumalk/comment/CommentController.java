@@ -1,75 +1,76 @@
 package com.avinash.danumalk.comment;
 
+import com.avinash.danumalk.common.PageResponse;
+import com.avinash.danumalk.common.ResultResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/comments")
 @CrossOrigin
 @AllArgsConstructor
 public class CommentController {
-    private final CommentService commentServiceImpl;
+    private final CommentServiceImpl commentServiceImpl;
 
-
-    @PostMapping("/post/{postId}")
-    public ResponseEntity<CommentDTO> createCommentOnPost(@PathVariable Long postId, @RequestBody CommentDTO commentDTO) {
-        CommentDTO createdComment = commentServiceImpl.createCommentOnPost(postId, commentDTO);
-        return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
+    @PostMapping("/{postId}")
+    public ResponseEntity<ResultResponse<CommentResponse>> createCommentOnPost(@PathVariable UUID postId, @RequestBody CommentRequest commentRequest, Authentication connectedUser) {
+        try {
+            var createdComment = commentServiceImpl.createCommentOnPost(postId, commentRequest, connectedUser);
+            return ResponseEntity.ok(createdComment);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
-
 
     @PostMapping("/reply/{parentCommentId}")
-    public ResponseEntity<CommentDTO> createReplyToComment(@PathVariable Long parentCommentId, @RequestBody CommentDTO replyCommentDTO) {
-        CommentDTO createdReply = commentServiceImpl.createReplyToComment(parentCommentId, replyCommentDTO);
-        return new ResponseEntity<>(createdReply, HttpStatus.CREATED);
-    }
-
-
-    @PutMapping("/{commentId}")
-    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long commentId, @RequestBody CommentDTO updatedCommentDTO) {
-        CommentDTO updated = commentServiceImpl.updateComment(commentId, updatedCommentDTO);
-        if (updated != null) {
-            return new ResponseEntity<>(updated, HttpStatus.OK);
+    public ResponseEntity<ResultResponse<CommentResponse>> createReplyToComment(@PathVariable UUID parentCommentId, @RequestBody CommentRequest commentRequest, Authentication connectedUser) {
+        try {
+            var createdReplyComment = commentServiceImpl.createReplyToComment(parentCommentId, commentRequest, connectedUser);
+            return ResponseEntity.ok(createdReplyComment);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @PostMapping("/update/{commentId}")
+    public ResponseEntity<ResultResponse<CommentResponse>> updateComment(@PathVariable UUID commentId, @RequestBody CommentRequest commentRequest, Authentication connectedUser) {
+        try {
+            var createdReplyComment = commentServiceImpl.updateComment(commentId, commentRequest, connectedUser);
+            return ResponseEntity.ok(createdReplyComment);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PageResponse<CommentResponse>> getAllCommentsForPost(
+            @PathVariable UUID postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+        try{
+            PageResponse<CommentResponse> response = commentServiceImpl.getAllCommentsForPost(postId, page, size, authentication);
+            return ResponseEntity.ok(response);
+        }catch  (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+
+    }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<Boolean> deleteComment(@PathVariable Long commentId) {
-        boolean deleted = commentServiceImpl.deleteComment(commentId);
-        return ResponseEntity.ok(deleted);
-    }
-
-
-
-    @GetMapping("/{commentId}")
-    public ResponseEntity<CommentDTO> getCommentById(@PathVariable Long commentId) {
-        CommentDTO commentDTO = commentServiceImpl.getCommentById(commentId);
-        if (commentDTO != null) {
-            return new ResponseEntity<>(commentDTO, HttpStatus.OK);
+    public ResponseEntity<Boolean> deleteComment(@PathVariable UUID commentId, Authentication authentication) {
+        try{
+            boolean deleted = commentServiceImpl.deleteComment(commentId, authentication);
+            return ResponseEntity.ok(deleted);
+        }catch (IllegalStateException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
     }
-
-
-
-    @GetMapping("/post/{postId}")
-    public ResponseEntity<List<CommentDTO>> getAllCommentsForPost(@PathVariable Long postId) {
-        List<CommentDTO> commentDTOs = commentServiceImpl.getAllCommentsForPost(postId);
-        return new ResponseEntity<>(commentDTOs, HttpStatus.OK);
-    }
-
-
-
-    @GetMapping("/replies/{parentCommentId}")
-    public ResponseEntity<List<CommentDTO>> getAllRepliesForParentComment(@PathVariable Long parentCommentId) {
-        List<CommentDTO> replyComments = commentServiceImpl.getAllRepliesForParentComment(parentCommentId);
-        return new ResponseEntity<>(replyComments, HttpStatus.OK);
-    }
-
 }

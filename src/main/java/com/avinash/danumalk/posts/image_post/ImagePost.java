@@ -1,6 +1,6 @@
-package com.avinash.danumalk.posts;
+package com.avinash.danumalk.posts.image_post;
 
-import com.avinash.danumalk.common.BaseEntity;
+import com.avinash.danumalk.posts.BasePostEntity;
 import com.avinash.danumalk.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -9,21 +9,17 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Getter
 @Setter
 @SuperBuilder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(callSuper = true)
+public class ImagePost extends BasePostEntity {
 
-public class ImagePost extends BaseEntity {
-    private String title;
     private String description;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    @JsonIgnoreProperties("imagePosts")  // Use this annotation to prevent infinite loop during JSON serialization
-    private User owner;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @OrderColumn

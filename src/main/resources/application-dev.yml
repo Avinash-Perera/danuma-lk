@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/danuma-lk-dev
+    url: jdbc:postgresql://localhost:5432/danuma_lk_development
     username: postgres
     password: 1234
     driver-classname: org.postgresql.Driver
@@ -8,15 +8,17 @@ spring:
       auto-commit: false
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql:true
       database: postgresql
       database-platform: org.hibernate.dialect.PostgreSQLDialect
-  multipart:
-    max-file-size: 50MB
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
   mail:
       host: localhost

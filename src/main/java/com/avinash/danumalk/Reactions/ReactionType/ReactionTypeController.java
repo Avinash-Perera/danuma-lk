@@ -1,5 +1,4 @@
-package com.avinash.danumalk.reactions;
-
+package com.avinash.danumalk.Reactions.ReactionType;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

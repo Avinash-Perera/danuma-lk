@@ -1,8 +1,12 @@
 package com.avinash.danumalk;
 
+import com.avinash.danumalk.Reactions.ReactionType.ReactionType;
+import com.avinash.danumalk.Reactions.ReactionType.ReactionTypeRepository;
 import com.avinash.danumalk.auth.AuthenticationService;
 import com.avinash.danumalk.auth.RegisterRequest;
 
+import com.avinash.danumalk.posts.PostType;
+import com.avinash.danumalk.posts.PostTypeRepository;
 import com.avinash.danumalk.role.Role;
 import com.avinash.danumalk.role.Permission;
 import com.avinash.danumalk.role.RoleName;
@@ -16,43 +20,46 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Set;
-
-
-
+import java.util.UUID;
 
 
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @EnableScheduling
 @EnableAsync
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.avinash.danumalk")
 public class DanumaLkApplication {
 
 
     public static void main(String[] args) {
 		SpringApplication.run(DanumaLkApplication.class, args);
 	}
-	@Bean
-	public CommandLineRunner commandLineRunner(
-			AuthenticationService service,
-			RoleRepository roleRepository
-
-	) {
-		return args -> {
-			initializeRoles(roleRepository);
-
-
-			var admin = RegisterRequest.builder()
-					.usersName("DanumaLK")
-					.email("DanumaLK")
-					.password("password")
-					.build();
-
-			System.out.println("Admin token: " + service.registerAdmin(admin).getAccessToken());
-
-
-
-		};
-	}
+//	@Bean
+//	public CommandLineRunner commandLineRunner(
+//			AuthenticationService service,
+//			RoleRepository roleRepository,
+//			PostTypeRepository postTypeRepository,
+//			ReactionTypeRepository reactionTypeRepository
+//
+//
+//	) {
+//		return args -> {
+//			initializeRoles(roleRepository);
+//			initializePostTypes(postTypeRepository);
+//			initializeReactionTypes(reactionTypeRepository);
+//
+//
+//			var admin = RegisterRequest.builder()
+//					.usersName("DanumaLK")
+//					.email("DanumaLK")
+//					.password("password")
+//					.build();
+//
+//			System.out.println("Admin token: " + service.registerAdmin(admin).getAccessToken());
+//
+//
+//
+//		};
+//	}
 
 	private void initializeRoles(RoleRepository roleRepository) {
 		// Check if roles exist, and if not, initialize them
@@ -81,6 +88,31 @@ public class DanumaLkApplication {
 					))
 					.build();
 			roleRepository.save(adminRole);
+		}
+	}
+
+	private void initializePostTypes(PostTypeRepository postTypeRepository) {
+		if (postTypeRepository.findAll().isEmpty()) {
+			PostType imagePostType = new PostType(UUID.randomUUID(), "ImagePost", "IMAGE_POST");
+			PostType textPostType = new PostType(UUID.randomUUID(), "TextPost", "TEXT_POST");
+			postTypeRepository.save(imagePostType);
+			System.out.println(imagePostType);
+			postTypeRepository.save(textPostType);
+			System.out.println(textPostType);
+		}
+	}
+
+	private void initializeReactionTypes(ReactionTypeRepository reactionTypeRepository) {
+		createReactionTypeIfNotFound(reactionTypeRepository, "Like", "LIKE");
+		createReactionTypeIfNotFound(reactionTypeRepository, "Dislike", "DISLIKE");
+	}
+
+	private void createReactionTypeIfNotFound(ReactionTypeRepository repository, String name, String key) {
+		if (repository.findByKey(key).isEmpty()) {
+			ReactionType reactionType = new ReactionType();
+			reactionType.setName(name);
+			reactionType.setKey(key);
+			repository.save(reactionType);
 		}
 	}
 

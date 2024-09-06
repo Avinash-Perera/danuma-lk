@@ -1,57 +1,62 @@
 package com.avinash.danumalk.comment;
 
-import com.avinash.danumalk.post.Post;
+import com.avinash.danumalk.posts.BasePostEntity;
 import com.avinash.danumalk.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "comment")
 @Data
 @NoArgsConstructor
-
+@AllArgsConstructor
+@Builder
 public class Comment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
-    private Long commentId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne
-    @JsonIgnoreProperties("comments") // Use this annotation
-    @JoinColumn(name = "post_id", referencedColumnName = "post_id")
-    private Post post;
+    @JsonIgnoreProperties("comments") // Use this annotation to prevent infinite loop during JSON serialization
+    @JoinColumn(name = "base_post_entity_id", referencedColumnName = "id")
+    private BasePostEntity post;
 
     @ManyToOne
-    @JsonIgnoreProperties("replies") // Use this annotation
-    @JoinColumn(name = "parent_comment_id", referencedColumnName = "comment_id")
+    @JsonIgnoreProperties("replies") // Use this annotation to prevent infinite loop during JSON serialization
+    @JoinColumn(name = "parent_comment_id", referencedColumnName = "id")
     private Comment parentComment;
 
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> replies ;
 
     @Column(name = "content", length = 1000)
     private String content;
 
-    @Column(name = "created_at")
     @CreationTimestamp
-    private Date createdAt;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdDate;
 
-    @Column(name = "updated_at")
     @UpdateTimestamp
-    private Date updatedAt;
+    @Column(insertable = false)
+    private LocalDateTime lastModifiedDate;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     @JsonIgnoreProperties("comments")  // Use this annotation to prevent infinite loop during JSON serialization
-    private User user;
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
 
 }

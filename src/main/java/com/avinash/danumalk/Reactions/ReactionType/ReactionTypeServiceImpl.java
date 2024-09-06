@@ -1,4 +1,4 @@
-package com.avinash.danumalk.reactions;
+package com.avinash.danumalk.Reactions.ReactionType;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -9,9 +9,10 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class ReactionTypeService implements ReactionTypeServiceInterface{
+public class ReactionTypeServiceImpl implements ReactionTypeService{
 
     private final ReactionTypeRepository reactionTypeRepository;
+
 
     @Override
     public List<ReactionType> getAllReactionTypes() {

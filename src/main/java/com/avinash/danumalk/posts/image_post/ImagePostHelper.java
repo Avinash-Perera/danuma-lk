@@ -1,4 +1,4 @@
-package com.avinash.danumalk.posts;
+package com.avinash.danumalk.posts.image_post;
 
 import com.avinash.danumalk.file.FileStorageService;
 import lombok.RequiredArgsConstructor;

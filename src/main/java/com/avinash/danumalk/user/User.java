@@ -1,6 +1,9 @@
 package com.avinash.danumalk.user;
 
-import com.avinash.danumalk.posts.ImagePost;
+import com.avinash.danumalk.Reactions.Reaction.Reaction;
+import com.avinash.danumalk.comment.Comment;
+import com.avinash.danumalk.posts.BasePostEntity;
+import com.avinash.danumalk.posts.image_post.ImagePost;
 import com.avinash.danumalk.profileImage.ProfileImage;
 import com.avinash.danumalk.role.Role;
 import com.avinash.danumalk.token.Token;
@@ -13,6 +16,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.security.auth.Subject;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +31,7 @@ import java.util.stream.Collectors;
 @EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "_user")
-public class User implements UserDetails {
+public class User implements UserDetails, Principal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -57,14 +62,6 @@ public class User implements UserDetails {
     @ToString.Exclude
     private List<Role> roles;
 
-//    @CreatedDate
-//    @Column(nullable = false, updatable = false)
-//    private LocalDateTime createdDate;
-//
-//    @LastModifiedDate
-//    @Column(insertable = false)
-//    private LocalDateTime lastModifiedDate;
-
     private String profile_image_url;
 
     private boolean accountLocked;
@@ -82,23 +79,19 @@ public class User implements UserDetails {
     private ProfileImage profileImage;
 
     @OneToMany(mappedBy = "owner")
-    private List<ImagePost> imagePosts;
+    @ToString.Exclude
+    private List<BasePostEntity> basePostEntity;
 
-    // Add the OneToMany relationship for posts
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    @JsonIgnoreProperties("user")  // Use this annotation to prevent infinite loop during JSON serialization
-//    @ToString.Exclude
-//    private List<ImagePost> imagePosts;
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    @JsonIgnoreProperties("user")
-//    @ToString.Exclude
-//    private List<Comment> comments;
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    @JsonIgnoreProperties("user")
-//    @ToString.Exclude
-//    private List<LikeReaction> likeReactions;
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("owner") // Use this annotation to prevent infinite loop during JSON serialization
+    @ToString.Exclude
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("owner")
+    @ToString.Exclude
+    private List<Reaction> reactions;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -136,6 +129,16 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    @Override
+    public String getName() {
+        return email;
+    }
+
+    @Override
+    public boolean implies(Subject subject) {
+        return Principal.super.implies(subject);
     }
 }
 

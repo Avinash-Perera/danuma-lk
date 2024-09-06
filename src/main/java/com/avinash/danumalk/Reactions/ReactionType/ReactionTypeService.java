@@ -1,12 +1,9 @@
-package com.avinash.danumalk.reactions;
+package com.avinash.danumalk.Reactions.ReactionType;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface ReactionTypeServiceInterface {
-
+public interface ReactionTypeService {
     List<ReactionType> getAllReactionTypes();
-
-    // Get a ReactionType by its ID
     ReactionType getReactionTypeById(UUID reactionTypeId);
 }
