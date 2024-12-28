@@ -22,10 +22,13 @@ public class UserMapper {
     }
 
     public UserResponse toUserResponse(User user) {
-        FileUploadResponse profileImageResponse = null;
-        if (user.getProfile_image_url() != null) {
+        FileUploadResponse profileImageResponse;
+        if (user.getProfile_image_url() != null && !user.getProfile_image_url().isEmpty()) {
             String imageUrl = imageHelper.getImageUrl(user.getProfile_image_url(), user.getId());
             profileImageResponse = new FileUploadResponse(user.getProfile_image_url(), imageUrl);
+
+        }else{
+            profileImageResponse = null;
         }
 
         return UserResponse.builder()

@@ -31,7 +31,7 @@ import org.springframework.web.multipart.MultipartResolver;
         servers = {
                 @Server(
                         description = "Local ENV",
-                        url = "http://localhost:8080"
+                        url = "http://localhost:8080/api/v1"
                 )
 //                @Server(
 //                        description = "PROD ENV",

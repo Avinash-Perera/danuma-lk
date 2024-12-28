@@ -127,4 +127,28 @@ public class EmailService {
 
         mailSender.send(mimeMessage);
     }
+
+    @Async
+    public void sendAccountDeactivationEmail(String to, String username, String subject, String link) throws MessagingException {
+        to = "ali@lmail.com";
+        String templateName = "account_deactivate_email.html";
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MULTIPART_MODE_MIXED, UTF_8.name());
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("username", username);
+        properties.put("link", link);
+
+        Context context = new Context();
+        context.setVariables(properties);
+
+        helper.setFrom("contact@danumalk.com");
+        helper.setTo(to);
+        helper.setSubject(subject);
+
+        String template = templateEngine.process(templateName, context);
+        helper.setText(template, true);
+
+        mailSender.send(mimeMessage);
+    }
 }

@@ -29,7 +29,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties("comments") // Use this annotation to prevent infinite loop during JSON serialization
     @JoinColumn(name = "base_post_entity_id", referencedColumnName = "id")
     private BasePostEntity post;
@@ -53,7 +53,7 @@ public class Comment {
     @Column(insertable = false)
     private LocalDateTime lastModifiedDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties("comments")  // Use this annotation to prevent infinite loop during JSON serialization
     @JoinColumn(name = "owner_id")
     private User owner;

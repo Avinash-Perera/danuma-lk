@@ -1,5 +1,6 @@
 package com.avinash.danumalk.user;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +16,15 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("users")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+@Tag(name = "User")
 public class UserController {
 
     private final UserService service;
 
-    @PatchMapping
+    @PatchMapping("/change_password")
     @PreAuthorize("hasAuthority('admin:update') or hasAuthority('user:update')")
     public ResponseEntity<?> changePassword(
             @RequestBody ChangePasswordRequest request,
@@ -34,17 +36,12 @@ public class UserController {
 
     @PatchMapping("/disable_user")
     @PreAuthorize("hasAuthority('admin:update') or hasAuthority('user:update')")
-    public ResponseEntity<String> disableUser(@RequestBody UserStatusChangeRequest disableUserRequest) throws Exception {
+    public ResponseEntity<Boolean> disableUser(@RequestBody UserStatusChangeRequest disableUserRequest) throws Exception {
         service.disableUser(disableUserRequest);
-        return ResponseEntity.ok("User disabled successfully");
+        return ResponseEntity.ok(Boolean.TRUE);
     }
 
-    @PatchMapping("/enable_user")
-    @PreAuthorize("hasAuthority('admin:update') or hasAuthority('user:update')")
-    public ResponseEntity<String> enableUser(@RequestBody UserStatusChangeRequest enableUserRequest) throws MessagingException {
-        service.enableUser(enableUserRequest);
-        return ResponseEntity.ok("User Activation Email sent");
-    }
+
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('admin:update') or hasAuthority('user:update')")
@@ -60,14 +57,7 @@ public class UserController {
     }
 
 
-    @GetMapping
-    @PreAuthorize("hasAuthority('user:read') and !hasRole('ADMIN')")
-    public ResponseEntity<PageResponse<UserResponse>> getAllUsers(
-            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(name = "size", defaultValue = "10", required = false) int size
-    ) {
-        return ResponseEntity.ok(service.getAllUsers(page,size));
-    }
+
 
 
 }

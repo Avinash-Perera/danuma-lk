@@ -2,9 +2,11 @@ package com.avinash.danumalk.Reactions.Reaction;
 
 import com.avinash.danumalk.Reactions.ReactionType.ReactionType;
 import com.avinash.danumalk.Reactions.ReactionType.ReactionTypeRepository;
+import com.avinash.danumalk.notification.NotificationService;
 import com.avinash.danumalk.posts.BasePostEntity;
 import com.avinash.danumalk.posts.BasePostEntityRepository;
 import com.avinash.danumalk.user.User;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -20,8 +22,10 @@ public class ReactionServiceImpl implements ReactionService {
     private final BasePostEntityRepository postRepository;
     private final ReactionTypeRepository reactionTypeRepository;
     private final Map<UUID, ReactionStrategy> strategyMap; // Change to use UUID
+    private final NotificationService notificationService;
 
     @Override
+    @Transactional
     public void reactToPost(UUID reactionTypeId, UUID basePostId, Authentication connectedUser) {
         User user = ((User) connectedUser.getPrincipal());
         BasePostEntity post = postRepository.findById(basePostId)
@@ -45,6 +49,11 @@ public class ReactionServiceImpl implements ReactionService {
         } else {
             throw new IllegalArgumentException("No strategy found for reaction type ID: " + reactionTypeId);
         }
+
+//        if (!post.getOwner().equals(user)) { // Prevent notification if the user reacts to their own post
+//            String message = user.getUsername() + " liked your post!";
+//            notificationService.createNotification(post.getOwner(), post, message);
+//        }
     }
 
     @Override
@@ -61,7 +70,7 @@ public class ReactionServiceImpl implements ReactionService {
 
         ReactionStrategy strategy = strategyMap.get(reactionTypeId);
         if (strategy != null) {
-            strategy.unReact(post, user, reaction);
+            strategy.unReact(reaction.getId());
         } else {
             throw new IllegalArgumentException("No strategy found for reaction: " + reactionTypeId);
         }

@@ -3,9 +3,11 @@ package com.avinash.danumalk.user;
 import com.avinash.danumalk.common.PageResponse;
 import com.avinash.danumalk.email.EmailService;
 import com.avinash.danumalk.exceptions.CannotChangeStatusException;
+import com.avinash.danumalk.exceptions.OperationNotPermittedException;
 import com.avinash.danumalk.exceptions.UserNotFoundException;
 import com.avinash.danumalk.role.RoleName;
 import com.avinash.danumalk.token.TokenRepository;
+import com.avinash.danumalk.util.TokenUtils;
 import com.avinash.danumalk.util.UserUtils;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
@@ -34,6 +36,7 @@ public class UserService implements UserServiceInterface {
     private final UserMapper userMapper;
     private final ImageHelper imageHelper;
     private final UserUtils userUtils;
+    private final TokenUtils tokenUtils;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
 
@@ -42,6 +45,7 @@ public class UserService implements UserServiceInterface {
 
 
     @Override
+    @Transactional
     public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
 
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
@@ -62,7 +66,8 @@ public class UserService implements UserServiceInterface {
         repository.save(user);
     }
 
-    public void disableUser(UserStatusChangeRequest disableUserRequest) {
+    @Transactional
+    public void disableUser(UserStatusChangeRequest disableUserRequest) throws MessagingException {
         User user = repository.findByEmail(disableUserRequest.email())
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + disableUserRequest.email()));
 
@@ -70,27 +75,16 @@ public class UserService implements UserServiceInterface {
         if (!disableUserRequest.email().equals(user.getEmail())) {
             throw new CannotChangeStatusException("Email is not associated with your account");
         }
-        user.setEnabled(false);
+        user.setAccountLocked(true);  // Lock the account instead of disabling
         repository.save(user);
 
+        tokenUtils.revokeAllUserTokens(user);
 
 
-
-
+        var reactivationLink = "http://localhost:8080/api/v1/users/enable_user";
+        userUtils.sendDeactivatedValidationEmail(user, reactivationLink);
     }
 
-    public void enableUser(UserStatusChangeRequest enableUserRequest) throws MessagingException {
-        User user = repository.findByEmail(enableUserRequest.email())
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + enableUserRequest.email()));
-        // Ensure that the current user is enabling their own account
-        if (!enableUserRequest.email().equals(user.getEmail())) {
-            throw new CannotChangeStatusException("Email is not associated with your account");
-        }
-
-        String newToken = userUtils.generateAndSaveActivationToken(user);
-        userUtils.sendValidationEmail(user, newToken);
-
-    }
 
 
     @Override
@@ -119,6 +113,11 @@ public class UserService implements UserServiceInterface {
                 log.error("Profile image not found in temp or user directory: {}", requestProfileImageUrl);
                 throw new IllegalStateException("Profile image not found in temp or user directory");
             }
+        } else if (requestProfileImageUrl == null || requestProfileImageUrl.isEmpty() && currentProfileImageUrl != null && !currentProfileImageUrl.isEmpty()) {
+            // Remove the current profile image if the request URL is null or empty
+            log.info("Removing existing profile image as request URL is null or empty: {}", currentProfileImageUrl);
+            imageHelper.deleteImageFromUserDirectory(currentProfileImageUrl, user.getId());
+            user.setProfile_image_url(null); // Reset profile image URL in the user object
         }
 
         user = userMapper.updateUserFromRequest(updateRequest, user);
@@ -131,26 +130,8 @@ public class UserService implements UserServiceInterface {
     public UserResponse getCurrentUser(UserDetails userDetails){
         String email = userDetails.getUsername();
         User user = repository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new OperationNotPermittedException("User not found with email: " + email));
         return userMapper.toUserResponse(user);
-    }
-
-    @Override
-    public PageResponse<UserResponse> getAllUsers(int page, int size){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-        Page<User> users = repository.findAllByEnabled(true, pageable);
-        List<UserResponse> usersAsResponse = users.stream()
-                .map(userMapper::toUserResponse)
-                .toList();
-        return new PageResponse<>(
-                usersAsResponse,
-                users.getNumber(),
-                users.getSize(),
-                users.getTotalElements(),
-                users.getTotalPages(),
-                users.isFirst(),
-                users.isLast()
-        );
     }
 
 
@@ -176,12 +157,12 @@ public class UserService implements UserServiceInterface {
     @Transactional
     public void deleteUser(UUID id, UserDetails userDetails) {
         var userToDelete = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new OperationNotPermittedException("User not found with id: " + id));
         var adminUser = repository.findByRoles_Name(String.valueOf(RoleName.ADMIN))
-                .orElseThrow(() -> new UserNotFoundException("Admin user not found with email: " + userDetails.getUsername()));
+                .orElseThrow(() -> new OperationNotPermittedException("Admin user not found with email: " + userDetails.getUsername()));
 
         if (userToDelete.getId().equals(adminUser.getId())) {
-            throw new CannotChangeStatusException("Admin cannot delete themselves");
+            throw new OperationNotPermittedException("Admin cannot delete themselves");
         }
 
         // Delete related tokens

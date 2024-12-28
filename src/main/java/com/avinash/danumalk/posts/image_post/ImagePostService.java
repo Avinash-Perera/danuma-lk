@@ -11,9 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -29,19 +27,20 @@ public class ImagePostService implements InterfaceImagePostService {
     private final ImagePostMapper imagePostMapper;
     private final ImagePostRepository imagePostRepository;
     private final ImagePostHelper imagePostHelper;
-    private final ImagePostUtils imagePostUtils;
     private final PostTypeRepository postTypeRepository;
+
 
 
     @Override
     @Transactional
     public ResultResponse<ImagePostResponse> create(ImagePostRequest post, Authentication connectedUser) {
         User user = ((User) connectedUser.getPrincipal());
+
         ImagePost imagePost = imagePostMapper.mapToImagePost(post);
         imagePost.setOwner(user);
 
-        // Save and fetch the ImagePost with PostType
-        ImagePost savedImagePost = imagePostRepository.saveAndFetchWithPostType(imagePost, post.postTypeId());
+        // Save and fetch the ImagePost with PostType not ImagePostResponse
+        ImagePost savedImagePost = imagePostRepository.saveAndFetchWithPostType(imagePost, post.postTypeId(), post.postCategoryIds());
 
         List<String> validImageUrls = new ArrayList<>();
 
@@ -61,17 +60,15 @@ public class ImagePostService implements InterfaceImagePostService {
         savedImagePost.setImageUrls(validImageUrls);
         savedImagePost.setPostType(savedImagePost.getPostType());
 
-        // Save the updated imagePost once more if necessary
-        savedImagePost = imagePostRepository.save(savedImagePost);
-
-        // Create response and include only the valid images
-        ImagePostResponse response = imagePostMapper.mapToImagePostResponse(savedImagePost);
+        var response = imagePostRepository.updateImagePost(savedImagePost, post.postCategoryIds());
 
         return ResultResponse.<ImagePostResponse>builder()
                 .status("OK")
                 .data(response)
                 .build();
     }
+
+
 
     @Override
     @Transactional
@@ -129,10 +126,8 @@ public class ImagePostService implements InterfaceImagePostService {
             updatedPost.setId(id); /* Ensure the ID remains the same */
             updatedPost.setImageUrls(validImageUrls);
             updatedPost.setPostType(postType);
-            var savedImagePost = imagePostRepository.save(updatedPost);
+            var response = imagePostRepository.updateImagePost(updatedPost, post.postCategoryIds());
 
-            /* Create response */
-            ImagePostResponse response = imagePostMapper.mapToImagePostResponse(savedImagePost);
 
             return ResultResponse.<ImagePostResponse>builder()
                     .status("OK")
@@ -160,9 +155,11 @@ public class ImagePostService implements InterfaceImagePostService {
     }
 
     @Override
-    public ResultResponse<ImagePostResponse> getById(UUID id) {
+    @Transactional
+    public ResultResponse<ImagePostResponse> getById(UUID id, @Nullable Authentication connectedUser) {
         ImagePost existingPost = imagePostRepository.findById(id).orElseThrow(() -> new IllegalStateException("Post not found!"));
-        ImagePostResponse response = imagePostMapper.mapToImagePostResponse(existingPost);
+        System.out.println(existingPost);
+        ImagePostResponse response = imagePostRepository.getImagePostDetails(id);
 
         return ResultResponse.<ImagePostResponse>builder()
                 .status("OK")
@@ -171,22 +168,29 @@ public class ImagePostService implements InterfaceImagePostService {
     }
 
 
-
     @Override
-    public PageResponse<ImagePostResponse> getAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-        Page<ImagePost> imagepostPage = imagePostRepository.findAllPosts(pageable);
-        List<ImagePostResponse> imagePostResponses = imagepostPage.stream().map(imagePostMapper::mapToImagePostResponse).toList();
+    public PageResponse<ImagePostResponse> getAll(int page, int size, @Nullable Authentication connectedUser) {
+        // Get the current user's ID
+        UUID userId = null;
+        if (connectedUser != null) {
+            User user = (User) connectedUser.getPrincipal();
+            userId = user.getId();
+        }
 
+        // Fetch the paginated posts with reaction count and user reaction info
+        Page<ImagePostResponse> imagePostResponsePage = imagePostRepository.getPaginatedImagePostsWithReactions(page, size, userId);
+
+        // Build and return the paginated response
         return new PageResponse<>(
-                imagePostResponses,
-                imagepostPage.getNumber(),
-                imagepostPage.getSize(),
-                imagepostPage.getTotalElements(),
-                imagepostPage.getTotalPages(),
-                imagepostPage.isFirst(),
-                imagepostPage.isLast()
+                imagePostResponsePage.getContent(),
+                imagePostResponsePage.getNumber(),
+                imagePostResponsePage.getSize(),
+                imagePostResponsePage.getTotalElements(),
+                imagePostResponsePage.getTotalPages(),
+                imagePostResponsePage.isFirst(),
+                imagePostResponsePage.isLast()
         );
     }
+
 
 }

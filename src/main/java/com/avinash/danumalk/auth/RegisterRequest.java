@@ -1,5 +1,4 @@
 package com.avinash.danumalk.auth;
-
 import com.avinash.danumalk.role.Role;
 import com.avinash.danumalk.role.RoleName;
 import jakarta.validation.constraints.Email;

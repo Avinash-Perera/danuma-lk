@@ -30,17 +30,17 @@ public class FileUploadController {
         }
     }
 
-    @GetMapping("/read")
-    public ResponseEntity<byte[]> readFile(
-            @RequestParam("fileUrl") String fileUrl
-    ) {
-        byte[] fileBytes = FileUtils.readFileFromLocation(fileUrl);
-        if (fileBytes != null) {
-            return ResponseEntity.ok()
-                    .header("Content-Disposition", "attachment; filename=" + fileUrl)
-                    .body(fileBytes);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+//    @GetMapping("/read")
+//    public ResponseEntity<byte[]> readFile(
+//            @RequestParam("fileUrl") String fileUrl
+//    ) {
+//        byte[] fileBytes = FileUtils.readFileFromLocation(fileUrl);
+//        if (fileBytes != null) {
+//            return ResponseEntity.ok()
+//                    .header("Content-Disposition", "attachment; filename=" + fileUrl)
+//                    .body(fileBytes);
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 }

@@ -5,6 +5,8 @@ import com.avinash.danumalk.Reactions.ReactionType.ReactionTypeRepository;
 import com.avinash.danumalk.auth.AuthenticationService;
 import com.avinash.danumalk.auth.RegisterRequest;
 
+import com.avinash.danumalk.posts.PostCategory;
+import com.avinash.danumalk.posts.PostCategoryRepository;
 import com.avinash.danumalk.posts.PostType;
 import com.avinash.danumalk.posts.PostTypeRepository;
 import com.avinash.danumalk.role.Role;
@@ -60,6 +62,18 @@ public class DanumaLkApplication {
 //
 //		};
 //	}
+// 	@Bean
+//	public CommandLineRunner commandLineRunner(
+//
+//			PostCategoryRepository  postCategoryRepository
+//	) {
+//		return args -> {
+//			initializePostCategory(postCategoryRepository);
+//
+//
+//
+//		};
+//	}
 
 	private void initializeRoles(RoleRepository roleRepository) {
 		// Check if roles exist, and if not, initialize them
@@ -101,6 +115,19 @@ public class DanumaLkApplication {
 			System.out.println(textPostType);
 		}
 	}
+
+//	private void  initializePostCategory(PostCategoryRepository  postCategoryRepository) {
+//		if (postCategoryRepository.findAll().isEmpty()) {
+//			PostCategory postCategory1 = new PostCategory(UUID.randomUUID(), "General", "Gen");
+//			postCategoryRepository.save(postCategory1);
+//
+//			PostCategory postCategory2 = new PostCategory(UUID.randomUUID(), "Education", "Edu");
+//			postCategoryRepository.save(postCategory2);
+//
+//
+//
+//		}
+//	}
 
 	private void initializeReactionTypes(ReactionTypeRepository reactionTypeRepository) {
 		createReactionTypeIfNotFound(reactionTypeRepository, "Like", "LIKE");

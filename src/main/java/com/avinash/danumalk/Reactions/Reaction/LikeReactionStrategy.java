@@ -2,8 +2,11 @@ package com.avinash.danumalk.Reactions.Reaction;
 
 import com.avinash.danumalk.posts.BasePostEntity;
 import com.avinash.danumalk.user.User;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -21,7 +24,8 @@ public class LikeReactionStrategy implements ReactionStrategy {
     }
 
     @Override
-    public void unReact(BasePostEntity post, User user, Reaction reaction) {
-        reactionRepository.deleteByPostAndOwnerAndReactionType(post, user, reaction.getReactionType());
-    }
+    @Transactional
+    public void unReact(UUID reactionId) {
+        reactionRepository.deleteById(reactionId);
+   }
 }

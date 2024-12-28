@@ -3,10 +3,13 @@ package com.avinash.danumalk.Reactions.Reaction;
 import com.avinash.danumalk.Reactions.ReactionType.ReactionType;
 import com.avinash.danumalk.posts.BasePostEntity;
 import com.avinash.danumalk.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -32,6 +35,7 @@ public class Reaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
+    @JsonIgnore
     private BasePostEntity post;
 
     @CreationTimestamp

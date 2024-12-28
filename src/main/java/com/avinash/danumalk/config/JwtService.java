@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -56,12 +57,20 @@ public class JwtService {
             UserDetails userDetails,
             long expiration
     ) {
+        // Extract only the roles from the authorities
+        var roles = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(authority -> authority.startsWith("ROLE_")) // Filter to include only roles
+                .toList();
+
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .claim("authorities", roles)
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

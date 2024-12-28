@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/v1/profileImage")
+@RequestMapping("profileImage")
 @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
 @RequiredArgsConstructor
 public class ProfileImageController {

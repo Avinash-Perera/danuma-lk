@@ -61,3 +61,12 @@ application:
 
 
 
+logging:
+  level:
+    org:
+      hibernate: info
+      hibernate.SQL: debug
+      hibernate.orm.jdbc.bind: trace
+      hibernate.stat: debug
+      hibernate.SQL_SLOW: info
+      hibernate.cache: debug

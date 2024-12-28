@@ -1,6 +1,7 @@
 package com.avinash.danumalk.auth;
 
 import com.avinash.danumalk.user.UserStatusChangeRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,21 +19,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication")
 public class AuthenticationController {
 
     private final AuthenticationService service;
 
-
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult result) throws MessagingException {
-        if (result.hasErrors()) {
-            // Validation failed, return validation errors to the client
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(buildValidationErrors(result));
-        }
+    public ResponseEntity<?> register(
+            @Valid
+            @RequestBody RegisterRequest request
+
+    ) throws MessagingException {
 
         return ResponseEntity.ok(service.register(request));
+
     }
 
     // Helper method to build validation error response
@@ -46,6 +48,7 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
+            @Valid
             @RequestBody AuthenticationRequest request
     ) {
         return ResponseEntity.ok(service.authenticate(request));

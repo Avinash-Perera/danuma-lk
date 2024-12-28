@@ -2,6 +2,7 @@ package com.avinash.danumalk.user;
 
 import com.avinash.danumalk.Reactions.Reaction.Reaction;
 import com.avinash.danumalk.comment.Comment;
+import com.avinash.danumalk.notification.Notification;
 import com.avinash.danumalk.posts.BasePostEntity;
 import com.avinash.danumalk.posts.image_post.ImagePost;
 import com.avinash.danumalk.profileImage.ProfileImage;
@@ -91,7 +92,6 @@ public class User implements UserDetails, Principal {
     @JsonIgnoreProperties("owner")
     @ToString.Exclude
     private List<Reaction> reactions;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

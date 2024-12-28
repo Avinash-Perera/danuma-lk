@@ -59,4 +59,14 @@ public class UserUtils {
                 "Account activation"
         );
     }
+
+    public void sendDeactivatedValidationEmail(User user, String link) throws MessagingException {
+        var token =generateAndSaveActivationToken(user);
+        emailService.sendAccountDeactivationEmail(
+                user.getEmail(),
+                user.getUsersName(),
+                "Account deactivation",
+                link
+        );
+    }
 }

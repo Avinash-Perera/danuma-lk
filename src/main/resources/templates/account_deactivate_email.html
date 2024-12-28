@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>Dear
+<span th:text="${username}">User</span>,</p>
+<p>We regret to inform you that your account has been deactivated from our system.</p>
+<p>
+    Use this link to reactivate:
+    <!--/*@thymesVar id="link" type=""*/-->
+    <a th:href="${link}" th:text="${link}">Link</a>
+</p>
+<p>If you have any questions or believe this to be a mistake, please contact our support team.</p>
+<p>Best regards,<br/>The Danumalk Team</p>
+</body>
+</html>

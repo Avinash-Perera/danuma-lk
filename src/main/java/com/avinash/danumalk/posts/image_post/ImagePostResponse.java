@@ -17,5 +17,10 @@ import java.util.UUID;
 public class ImagePostResponse extends BasePostEntityResponse {
     private String description;
     private List<FileUploadResponse> imageUrls;
+    private long reactionCount;
+    private long commentCount;
+    private Boolean isUserReacted;
+    private Boolean isOwnerLocked;
+
 
 }

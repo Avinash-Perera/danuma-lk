@@ -1,6 +1,7 @@
 package com.avinash.danumalk.config;
 
 import com.avinash.danumalk.token.TokenRepository;
+import com.avinash.danumalk.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
+    private final UserRepository repository;
 
     @Override
     protected void doFilterInternal(
@@ -42,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        jwt = authHeader.substring(7);
+          jwt = authHeader.substring(7);
         userEmail = jwtService.extractUsername(jwt);
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
@@ -60,7 +63,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+//            var user = repository.findByEmail(userEmail)
+//                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//            if (user.isAccountLocked()){
+//                user.setAccountLocked(false);
+//                repository.save(user);
+//
+//            }
         }
+
         filterChain.doFilter(request, response);
     }
 }

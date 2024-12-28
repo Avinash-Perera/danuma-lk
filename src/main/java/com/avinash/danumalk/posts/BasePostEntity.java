@@ -3,10 +3,12 @@ package com.avinash.danumalk.posts;
 import com.avinash.danumalk.Reactions.Reaction.Reaction;
 import com.avinash.danumalk.comment.Comment;
 import com.avinash.danumalk.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -29,7 +31,7 @@ public class BasePostEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
@@ -38,7 +40,7 @@ public class BasePostEntity {
     private LocalDateTime lastModifiedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_type_id", nullable = false)
+    @JoinColumn(name = "post_type_id")
     private PostType postType;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,14 +48,21 @@ public class BasePostEntity {
     @JsonIgnoreProperties("posts")  // Use this annotation to prevent infinite loop during JSON serialization
     private User owner;
 
-    // Define a one-to-many relationship with comments
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("post") // Use this annotation to prevent infinite loop during JSON serialization
     @ToString.Exclude
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("post") // Use this annotation
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Reaction> reactions;
+
+    @ManyToMany
+    @JoinTable(
+            name = "post_category_mapping",  // Join table name
+            joinColumns = @JoinColumn(name = "post_id"),  // Foreign key for Post
+            inverseJoinColumns = @JoinColumn(name = "category_id") // Foreign key for Category
+    )
+    @ToString.Exclude
+    private List<PostCategory> categories = new ArrayList<>();
 
 }

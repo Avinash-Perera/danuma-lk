@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/reactions")
+@RequestMapping("reactions")
 @AllArgsConstructor
 public class ReactionController {
 
-    private final ReactionService reactionService;
+    private final ReactionServiceImpl reactionService;
 
     @PostMapping("/react")
     public ResponseEntity<String> reactToPost(

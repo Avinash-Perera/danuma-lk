@@ -1,6 +1,7 @@
 package com.avinash.danumalk.config;
 
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -13,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static com.avinash.danumalk.role.Permission.ADMIN_CREATE;
 import static com.avinash.danumalk.role.Permission.POST_CREATE;
@@ -28,7 +31,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
-    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**",
+    private static final String[] WHITE_LIST_URL = {
+            "/auth/**",
             "/v2/api-docs",
             "/v3/api-docs",
             "/v3/api-docs/**",
@@ -39,7 +43,11 @@ public class SecurityConfiguration {
             "/swagger-ui/**",
             "/webjars/**",
             "/swagger-ui.html",
-            "/api/v1/users/enable_user"};
+            "/users/enable_user",
+            "/image/{postId}",
+            "/image/all",
+            "/posts/**"
+    };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
@@ -60,7 +68,7 @@ public class SecurityConfiguration {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout ->
-                        logout.logoutUrl("/api/v1/auth/logout")
+                        logout.logoutUrl("logout")
                                 .addLogoutHandler(logoutHandler)
                                 .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
                 )

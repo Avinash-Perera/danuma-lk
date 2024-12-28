@@ -6,6 +6,7 @@ import com.avinash.danumalk.common.PageResponse;
 import com.avinash.danumalk.common.ResultResponse;
 import com.avinash.danumalk.exceptions.UnauthorizedAccessException;
 import com.avinash.danumalk.exceptions.handleInvalidPostTypeException;
+import org.springframework.lang.Nullable;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,13 +18,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/posts/image")
+@RequestMapping("image")
 @CrossOrigin
 @AllArgsConstructor
 @Validated // Enable validation for this controller
 
 public class ImagePostController {
-    private final ImagePostService imagePostService;
+    private final InterfaceImagePostService  imagePostService;
     private final AuthenticationService authenticationService;
 
     @PostMapping
@@ -68,15 +69,17 @@ public class ImagePostController {
     @GetMapping("/all")
     public PageResponse<ImagePostResponse> getAllPostsPaginated(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @Nullable Authentication connectedUser
+
     ) {
-        return imagePostService.getAll(page, size);
+        return imagePostService.getAll(page, size, connectedUser);
     }
 
 
     @GetMapping("/{postId}")
-    public ResponseEntity<ImagePostResponse> getPostById(@PathVariable UUID postId) {
-        var imagePostResponse = imagePostService.getById(postId);
+    public ResponseEntity<ImagePostResponse> getPostById(@PathVariable UUID postId, @Nullable Authentication connectedUser) {
+        var imagePostResponse = imagePostService.getById(postId, connectedUser);
 
         if (imagePostResponse != null) {
             return ResponseEntity.ok(imagePostResponse.getData());

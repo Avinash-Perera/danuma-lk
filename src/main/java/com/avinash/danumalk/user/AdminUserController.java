@@ -11,16 +11,15 @@ import com.avinash.danumalk.common.PageResponse;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/users/admin")
+@RequestMapping("users/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
 
     private final UserService service;
 
 
     @GetMapping
-    @PreAuthorize("hasAuthority('admin:read')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PageResponse<UserResponse>> getAllUsersForAdmin(
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @RequestParam(name = "size", defaultValue = "10", required = false) int size

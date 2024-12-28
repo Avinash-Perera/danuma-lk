@@ -13,6 +13,7 @@ import com.avinash.danumalk.token.TokenRepository;
 import com.avinash.danumalk.token.TokenType;
 import com.avinash.danumalk.user.User;
 import com.avinash.danumalk.user.UserRepository;
+import com.avinash.danumalk.util.TokenUtils;
 import com.avinash.danumalk.util.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
@@ -45,6 +46,7 @@ public class AuthenticationService implements AuthenticationServiceInterface {
     private final EmailService emailService;
     private final RoleRepository roleRepository;
     private final UserUtils userUtils;
+    private final TokenUtils tokenUtils;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl ;
@@ -90,7 +92,6 @@ public class AuthenticationService implements AuthenticationServiceInterface {
     @Override
     public boolean register(RegisterRequest request) throws MessagingException {
         var userRole = roleRepository.findByName("USER")
-                // todo - better exception handling
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
         try {
             var user = User.builder()
@@ -116,6 +117,7 @@ public class AuthenticationService implements AuthenticationServiceInterface {
             throw new RuntimeException("An unexpected error occurred during registration", e);
         }
     }
+
 
     @Override
     @Transactional
@@ -153,7 +155,6 @@ public class AuthenticationService implements AuthenticationServiceInterface {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
@@ -164,16 +165,13 @@ public class AuthenticationService implements AuthenticationServiceInterface {
                     .orElseThrow();
             var jwtToken = jwtService.generateToken(user);
             var refreshToken = jwtService.generateRefreshToken(user);
-            revokeAllUserTokens(user);
+            tokenUtils.revokeAllUserTokens(user);
             saveUserToken(user, jwtToken);
             return AuthenticationResponse.builder()
                     .accessToken(jwtToken)
                     .refreshToken(refreshToken)
                     .build();
-        } catch (AuthenticationException e) {
-            // Handle incorrect username or password
-            throw new IncorrectCredentialsException("Incorrect username or password or not activated");
-        }
+
     }
 
 
@@ -188,18 +186,6 @@ public class AuthenticationService implements AuthenticationServiceInterface {
         tokenRepository.save(token);
     }
 
-
-
-    private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
-    }
 
 
     @Override
@@ -220,7 +206,7 @@ public class AuthenticationService implements AuthenticationServiceInterface {
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user);
+                tokenUtils.revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
